@@ -95,9 +95,22 @@ export default async function handler(req, res) {
           debugInfo.magicMime = mimetype;
         }
       }
+      // Additional fallback: if still no mimetype, try common image types by header
+      if (!mimetype) {
+        if (imageBuffer[0] === 0xFF && imageBuffer[1] === 0xD8 && imageBuffer[2] === 0xFF) mimetype = 'image/jpeg';
+        else if (imageBuffer[0] === 0x89 && imageBuffer[1] === 0x50 && imageBuffer[2] === 0x4E && imageBuffer[3] === 0x47) mimetype = 'image/png';
+        else if (imageBuffer[0] === 0x47 && imageBuffer[1] === 0x49 && imageBuffer[2] === 0x46 && imageBuffer[3] === 0x38) mimetype = 'image/gif';
+        else if (imageBuffer[8] === 0x57 && imageBuffer[9] === 0x45 && imageBuffer[10] === 0x42 && imageBuffer[11] === 0x50) mimetype = 'image/webp';
+        debugInfo.fallbackHeader = mimetype;
+      }
       console.log('[Gemini Debug]', debugInfo);
       if (!mimetype) {
-        res.status(500).json({ error: 'File mimetype missing or could not be inferred', debugInfo });
+        res.status(500).json({ error: 'File mimetype missing or could not be inferred. Try a different image format or source.', debugInfo });
+        return;
+      }
+      // Accept HEIC/HEIF as valid mimetypes, but return a clear error if not supported
+      if (mimetype === 'image/heic' || mimetype === 'image/heif') {
+        res.status(400).json({ error: 'HEIC/HEIF images (iPhone camera photos) are not supported by the current AI parser. Please use a photo from your gallery, or change your iPhone camera format to JPEG in Settings > Camera > Formats.', mimetype });
         return;
       }
       // Gemini Vision expects inlineData with base64 data

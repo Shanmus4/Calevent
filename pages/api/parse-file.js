@@ -51,9 +51,29 @@ export default async function handler(req, res) {
     }
     let file = files.file;
     if (Array.isArray(file)) file = file[0];
+    // Fallback: infer mimetype from extension if missing or generic
+    if (!file || !file.mimetype || file.mimetype === 'application/octet-stream') {
+      let ext = '';
+      if (file && file.originalFilename) {
+        ext = file.originalFilename.split('.').pop().toLowerCase();
+      }
+      // Map extension to mimetype
+      const extToMime = {
+        pdf: 'application/pdf',
+        doc: 'application/msword',
+        docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        xls: 'application/vnd.ms-excel',
+        xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', bmp: 'image/bmp', gif: 'image/gif', tiff: 'image/tiff',
+        heic: 'image/heic', heif: 'image/heif',
+      };
+      if (ext && extToMime[ext]) {
+        file.mimetype = extToMime[ext];
+      }
+    }
     if (!file || !file.mimetype) {
       console.error('[parse-file] No file or mimetype. files:', files, 'file:', file);
-      res.status(400).json({ error: 'No file or mimetype received', files, file });
+      res.status(400).json({ error: 'No file or mimetype received (even after extension fallback)', files, file });
       return;
     }
     let text = '';
@@ -72,6 +92,11 @@ export default async function handler(req, res) {
         file.mimetype === 'application/msword'
       ) {
         text = await parseDocxFile(file.filepath);
+      } else if (
+        file.mimetype === 'application/vnd.ms-excel' ||
+        file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      ) {
+        text = '[Excel file support coming soon: file accepted, but not parsed]';
       } else {
         console.error('[parse-file] Unsupported file type:', file.mimetype);
         res.status(400).json({ error: 'Unsupported file type', mimetype: file.mimetype });

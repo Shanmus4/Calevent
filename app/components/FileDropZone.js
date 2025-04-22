@@ -17,6 +17,9 @@ const FILE_ICONS = {
   word: (
     <svg xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 0 24 24" width="32" fill="#1976D2"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-7V3.5L18.5 9H13z"/><text x="7" y="20" fontSize="8" fill="#fff" fontFamily="Arial">W</text></svg>
   ),
+  excel: (
+    <svg xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 0 24 24" width="32" fill="#388E3C"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-7V3.5L18.5 9H13z"/><text x="7" y="20" fontSize="8" fill="#fff" fontFamily="Arial">X</text></svg>
+  ),
   image: (
     <svg xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 0 24 24" width="32" fill="#43A047"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM5 5h14v10l-4.5-4.5-6 6L5 13.5V5zm0 14v-2l5-5 4.5 4.5 2.5-2.5V19H5z"/></svg>
   ),
@@ -26,19 +29,31 @@ const ALLOWED_TYPES = [
   'application/pdf',
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.ms-excel',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   'image/jpeg', 'image/png', 'image/webp', 'image/bmp', 'image/gif', 'image/tiff',
+  'image/heic', 'image/heif',
+];
+
+const ALLOWED_EXTENSIONS = [
+  'pdf', 'doc', 'docx', 'xls', 'xlsx', 'jpg', 'jpeg', 'png', 'webp', 'bmp', 'gif', 'tiff', 'heic', 'heif'
 ];
 
 function isAllowedFileType(file) {
-  return ALLOWED_TYPES.includes(file.type);
+  // Accept if mimetype matches
+  if (ALLOWED_TYPES.includes(file.type)) return true;
+  // Fallback: check extension if type is missing/unknown
+  const ext = file.name.split('.').pop().toLowerCase();
+  return ALLOWED_EXTENSIONS.includes(ext);
 }
 
 function getFileTypeIcon(fileName) {
   if (!fileName) return FILE_ICONS.upload;
   const ext = fileName.split('.').pop().toLowerCase();
-  if (["jpg", "jpeg", "png", "webp", "bmp", "gif", "tiff"].includes(ext)) return FILE_ICONS.image;
+  if (["jpg", "jpeg", "png", "webp", "bmp", "gif", "tiff", "heic", "heif"].includes(ext)) return FILE_ICONS.image;
   if (["pdf"].includes(ext)) return FILE_ICONS.pdf;
   if (["doc", "docx"].includes(ext)) return FILE_ICONS.word;
+  if (["xls", "xlsx"].includes(ext)) return FILE_ICONS.excel;
   return FILE_ICONS.default;
 }
 
@@ -64,7 +79,7 @@ export default function FileDropZone({ onFileParsed, loading, clearInput }) {
     const file = e.dataTransfer.files[0];
     if (!file) return;
     if (!isAllowedFileType(file)) {
-      setError("Only images, PDFs and Docs are supported.");
+      setError("Unsupported file type. Allowed: Images, PDF, Word, Excel.");
       return;
     }
     setFileName(file.name);
@@ -76,12 +91,17 @@ export default function FileDropZone({ onFileParsed, loading, clearInput }) {
   const handleChange = async (e) => {
     setError("");
     const file = e.target.files[0];
-    if (!file) return;
-    if (!isAllowedFileType(file)) {
-      setError("Only images, PDFs and Docs are supported.");
+    if (!file) {
+      setError("No file detected. Try again or use a different method.");
+      setFileName("");
       return;
     }
     setFileName(file.name);
+    // Show filename regardless of type
+    if (!isAllowedFileType(file)) {
+      setError("Unsupported file type. Allowed: Images, PDF, Word, Excel.");
+      return;
+    }
     setParsing(true);
     await handleFile(file);
     setParsing(false);
@@ -106,7 +126,11 @@ export default function FileDropZone({ onFileParsed, loading, clearInput }) {
         body: formData,
       });
       const data = await res.json();
-      if (data.error) setError(data.error);
+      if (data.error) {
+        setError((data.error || "Unknown error") + (data.mimetype ? ` (type: ${data.mimetype})` : "") + (data.mimetype === 'image/heic' || data.mimetype === 'image/heif' ? "\nHEIC/HEIF images (iPhone camera photos) are not supported by the current AI parser. Please use a photo from your gallery, or change your iPhone camera format to JPEG in Settings > Camera > Formats." : ""));
+        setParsing(false);
+        return;
+      }
       else onFileParsed(data.text);
     } catch (e) {
       setError("Failed to parse file");
@@ -142,7 +166,7 @@ export default function FileDropZone({ onFileParsed, loading, clearInput }) {
         <input
           id="file-upload"
           type="file"
-          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp,.bmp,.gif,.tiff"
+          accept="*"
           ref={inputRef}
           style={{ display: "none" }}
           onChange={handleChange}
@@ -172,12 +196,12 @@ export default function FileDropZone({ onFileParsed, loading, clearInput }) {
           {fileName
             ? getTruncatedFileName(fileName)
             : (<>
-                Drop event file here or <span className={styles.browse} onClick={() => inputRef.current?.click()} style={{ fontWeight: 'bold', textDecoration: 'underline' }}>browse</span>
+                Drop event file here or <label htmlFor="file-upload" className={styles.browse} style={{ fontWeight: 'bold', textDecoration: 'underline', cursor: 'pointer' }}>browse</label>
               </>)}
         </span>
         {!fileName && (
           <span className={styles.supportNote}>
-            Only images, PDFs and Docs are supported
+            Only images, PDFs, Docs, and Excel files are supported
           </span>
         )}
       </label>
