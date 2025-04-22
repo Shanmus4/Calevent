@@ -22,6 +22,17 @@ const FILE_ICONS = {
   ),
 };
 
+const ALLOWED_TYPES = [
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'image/jpeg', 'image/png', 'image/webp', 'image/bmp', 'image/gif', 'image/tiff',
+];
+
+function isAllowedFileType(file) {
+  return ALLOWED_TYPES.includes(file.type);
+}
+
 function getFileTypeIcon(fileName) {
   if (!fileName) return FILE_ICONS.upload;
   const ext = fileName.split('.').pop().toLowerCase();
@@ -52,6 +63,10 @@ export default function FileDropZone({ onFileParsed, loading, clearInput }) {
     setError("");
     const file = e.dataTransfer.files[0];
     if (!file) return;
+    if (!isAllowedFileType(file)) {
+      setError("Only images, PDFs and Docs are supported.");
+      return;
+    }
     setFileName(file.name);
     setParsing(true);
     await handleFile(file);
@@ -62,6 +77,10 @@ export default function FileDropZone({ onFileParsed, loading, clearInput }) {
     setError("");
     const file = e.target.files[0];
     if (!file) return;
+    if (!isAllowedFileType(file)) {
+      setError("Only images, PDFs and Docs are supported.");
+      return;
+    }
     setFileName(file.name);
     setParsing(true);
     await handleFile(file);

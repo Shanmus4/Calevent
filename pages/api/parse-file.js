@@ -16,8 +16,8 @@ async function parseImageWithGemini(filePath, mimetype) {
   const form = new FormData();
   form.append('file', new Blob([imageBuffer]), 'image');
   form.append('prompt', 'Extract all text from this image as clearly as possible.');
-  // Call the local Gemini Vision proxy endpoint
-  const apiRes = await fetch('http://localhost:3000/api/gemini-image', {
+  // Use relative path for API endpoint to work both locally and on Vercel
+  const apiRes = await fetch('/api/gemini-image', {
     method: 'POST',
     body: form,
   });
