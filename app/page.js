@@ -104,10 +104,12 @@ export default function Home() {
       setError("");
       setLoading(true);
       try {
+        // Get user's local timezone
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         const res = await fetch("/api/parse", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: inputValue })
+          body: JSON.stringify({ text: inputValue, timezone })
         });
         const data = await res.json();
         console.log('AI backend returned:', data.events);

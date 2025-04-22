@@ -1,7 +1,7 @@
 # TASK.md
 
 ## Active Tasks
-- [x] Deploy live (after SEO)
+- None
 
 ## Completed Tasks
 - [x] Next.js project setup with custom CSS
@@ -36,6 +36,9 @@
 - [x] README, manifest, and UI reflect final project state
 - [x] All features tested and verified for production
 - [x] Project ready for deployment/live usage
+- [x] Deploy live (after SEO) (2025-04-22 17:57:22)
+- [x] All timezone, mobile, and ambiguous time handling logic implemented (2025-04-22 17:57:22)
+- [x] Final deployment and polish complete (2025-04-22 17:57:22)
 
 ## Discovered During Work
 - None
@@ -45,3 +48,5 @@
 - [x] No API keys or sensitive data in repo
 - [x] No user data stored or logged
 - [x] All calendar links generated client-side
+- [x] No analytics or third-party tracking of user data
+- [x] All code reviewed for privacy and security

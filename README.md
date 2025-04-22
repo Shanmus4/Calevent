@@ -5,8 +5,9 @@
 **calevents is complete and live.**
 
 - All features are implemented and tested.
-- SEO, branding, and manifest are finalized.
-- Ready for users and future enhancements.
+- SEO, branding, timezone, and mobile handling are finalized.
+- No pending or upcoming tasks.
+- Ready for users and future enhancements as needed.
 
 calevents makes it easy to turn any text, email, or message into ready-to-use Google, Outlook, or .ics calendar links. 100% free, private, and no login needed. Perfect for meetings, reminders, and events.
 
@@ -14,9 +15,9 @@ calevents makes it easy to turn any text, email, or message into ready-to-use Go
 - Removed Tailwind CSS, PostCSS, and Autoprefixer (not used in this project).
 - node_modules cleaned and minimized for deployment.
 - Main frame and results section now feature smooth, modern animations.
-
-## Upcoming
-- Deployment to Vercel/Netlify.
+- Timezone and mobile event time handling fixed (now always uses user's actual timezone)
+- All ambiguous time logic handled by AI
+- Final deployment and polish
 
 ## Features
 - Turn any text into calendar links for Google, Outlook, or .ics
