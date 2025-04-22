@@ -9,15 +9,15 @@ export const config = {
   },
 };
 
-async function parseImageWithGemini(filePath, mimetype) {
+async function parseImageWithGemini(filePath, mimetype, baseUrl) {
   // Read the image buffer
   const imageBuffer = fs.readFileSync(filePath);
   // Use FormData to send file and prompt to Gemini Vision API endpoint
   const form = new FormData();
   form.append('file', new Blob([imageBuffer]), 'image');
   form.append('prompt', 'Extract all text from this image as clearly as possible.');
-  // Use relative path for API endpoint to work both locally and on Vercel
-  const apiRes = await fetch('/api/gemini-image', {
+  // Use absolute URL for API endpoint
+  const apiRes = await fetch(`${baseUrl}/api/gemini-image`, {
     method: 'POST',
     body: form,
   });
@@ -59,8 +59,12 @@ export default async function handler(req, res) {
     let text = '';
     try {
       console.log('[parse-file] Uploaded file:', file);
+      // Dynamically compute base URL for server-side fetch
+      const protocol = req.headers['x-forwarded-proto'] || 'http';
+      const host = req.headers.host;
+      const baseUrl = `${protocol}://${host}`;
       if (file.mimetype.startsWith('image/')) {
-        text = await parseImageWithGemini(file.filepath, file.mimetype);
+        text = await parseImageWithGemini(file.filepath, file.mimetype, baseUrl);
       } else if (file.mimetype === 'application/pdf') {
         text = await parsePdfFile(file.filepath);
       } else if (
