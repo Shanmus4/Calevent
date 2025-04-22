@@ -1,5 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
+import FileDropZone from "./components/FileDropZone";
 
 // Main page with main-frame section, head, divider, calendar type, event details, button container (with main button), and footer note (with bold underlined links)
 const CALENDAR_TYPES = [
@@ -291,6 +292,10 @@ export default function Home() {
           />
           <div className="event-details-support">
             Reload the page to clear all data
+            <FileDropZone
+              onFileParsed={text => setInputValue(text)}
+              loading={loading}
+            />
           </div>
         </div>
         <div className="main-btn-container">
@@ -343,29 +348,32 @@ function StaggeredResults({ results, getResultButtonText, getResultButtonIcon })
     setTimeout(revealNext, 60); // slight delay before first
     return () => {};
   }, [results]);
+  // Reason: For .ics results, force file download by setting download attribute to filename
   return (
     <div className="main-result-section-wrapper">
-      {results.map((result, idx) => (
-        <div
-          className="result-section"
-          key={idx}
-          style={{
-            opacity: idx < visibleCount ? 1 : 0,
-            transform: idx < visibleCount ? 'translateY(0)' : 'translateY(24px)',
-            transition: 'opacity 0.5s cubic-bezier(0.4,0,0.2,1), transform 0.5s cubic-bezier(0.4,0,0.2,1)'
-          }}
-        >
+      {results.slice(0, visibleCount).map((result, idx) => (
+        <div className="result-section result-section-stagger fade-in-up" key={idx}>
           <span className="result-section-title">{result.title}</span>
-          <a
-            className="result-section-btn no-underline"
-            href={result.link}
-            target={result.isICS ? undefined : "_blank"}
-            rel={result.isICS ? undefined : "noopener noreferrer"}
-            download={result.isICS ? undefined : false}
-          >
-            {getResultButtonText(result.calendarType)}
-            {getResultButtonIcon(result.calendarType)}
-          </a>
+          {result.isICS ? (
+            <a
+              className="result-section-btn no-underline"
+              href={result.link}
+              download={result.title ? `${result.title.replace(/[^a-zA-Z0-9_-]+/g, '_')}.ics` : 'event.ics'}
+            >
+              {getResultButtonText(result.calendarType)}
+              {getResultButtonIcon(result.calendarType)}
+            </a>
+          ) : (
+            <a
+              className="result-section-btn no-underline"
+              href={result.link}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {getResultButtonText(result.calendarType)}
+              {getResultButtonIcon(result.calendarType)}
+            </a>
+          )}
         </div>
       ))}
     </div>

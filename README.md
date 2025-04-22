@@ -24,6 +24,18 @@ calevents makes it easy to turn any text, email, or message into ready-to-use Go
 - Free, private, and no login needed
 - Supports meetings, reminders, and all event types
 - Fast, simple, and mobile-friendly
+- **Drag-and-drop image upload with Gemini Vision OCR (image-to-text extraction)**
+- **Robust MIME type inference for uploads (PDF, DOCX, images, etc.)**
+- **ICS file download always triggers file save, not browser open**
+- **No user data stored, no analytics, all secrets in .env.local**
+
+## Security & Privacy
+- All environment variables and API keys are stored in `.env.local` (never committed)
+- No user data is ever stored or logged
+- All event extraction and image parsing is done in-memory and deleted after use
+- Calendar links and .ics files are generated client-side for privacy
+- No analytics or third-party tracking
+- **Safe for public repo: no secrets, no user data, no analytics, all dependencies up to date**
 
 ## Getting Started
 

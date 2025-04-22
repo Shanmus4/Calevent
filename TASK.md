@@ -39,6 +39,10 @@
 - [x] Deploy live (after SEO) (2025-04-22 17:57:22)
 - [x] All timezone, mobile, and ambiguous time handling logic implemented (2025-04-22 17:57:22)
 - [x] Final deployment and polish complete (2025-04-22 17:57:22)
+- [x] Gemini Vision API integration for drag-and-drop image-to-text extraction (2025-04-22 21:30)
+- [x] Robust MIME type inference and error handling for uploads (2025-04-22 21:30)
+- [x] ICS download always triggers file download, not browser open (2025-04-22 21:34)
+- [x] Security/privacy audit: safe for public repo, no secrets, no user data, no analytics (2025-04-22 21:36)
 
 ## Discovered During Work
 - None

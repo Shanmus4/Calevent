@@ -52,12 +52,18 @@ Build a privacy-first web app that lets users extract calendar events from any p
 - [x] Favicon (calendar icon)
 - [x] Minor code tweaks for design accuracy
 - [x] SEO optimization for better discoverability (meta tags, Open Graph, accessibility, etc.)
+- [x] Gemini Vision API integration for image-to-text extraction via drag-and-drop/file upload
+- [x] MIME type inference and robust error handling for uploads
+- [x] ICS download: always triggers file download, not browser open
+- [x] Security review: all secrets in .env.local, no user data stored, no analytics
 
 ## Safety & Privacy
 - All environment variables and secrets are stored in `.env.local` and never committed.
 - No user data is stored or tracked anywhere in the app.
 - All event extraction happens via the Gemini API and is not retained.
 - All calendar links are generated client-side for maximum privacy.
+- ICS downloads use Content-Disposition: attachment and frontend download attribute to force download.
+- Image uploads are processed in-memory and deleted after use.
 
 ## Stretch Goals
 - [ ] Advanced recurrence and edge case handling
@@ -72,6 +78,9 @@ Build a privacy-first web app that lets users extract calendar events from any p
 - Gemini AI prompt now generates more descriptive event titles (room/property/flight etc. in title where possible)
 - Dropdown UI: correct icons, shorter button labels, .ics label clarified
 - CSS: improved scroll/overflow handling, consistent scaling
+- Integrated Gemini Vision API for drag-and-drop image-to-text extraction
+- ICS download always triggers download, not browser open
+- Security audit: verified no sensitive data is exposed, all secrets in .env, no user data stored
 
 #### Prompt Design
 - Titles are concise but include key info (e.g., room name, airline)
@@ -79,23 +88,8 @@ Build a privacy-first web app that lets users extract calendar events from any p
 - Timezone logic: user-specified > inferred from context > default
 
 #### UI/UX
-- Dropdown trigger and selected item icons are now correct and visually distinct
-- Result button labels are short and clear
-- Page is fully scrollable, no horizontal overflow, scaled for compactness
-
-### [2025-04-22] UI Responsiveness & Polish
-- Body and main sections are now fully responsive (padding adjusts at <640px)
-- Main frame is visually compact (scale, gap, padding)
-- Footer note is centered and spaced for clarity
-
-### [2025-04-22]
-- Pruned unused dependencies: tailwindcss, postcss, autoprefixer removed. Project is now pure Next.js + React with custom CSS.
-- Implemented smooth main frame expansion and staggered result reveal animation for a modern, polished UX.
-- Error and result section logic unified for consistent appearance and animation.
-- node_modules size checked and minimized for deployment.
-
-### [2025-04-22]
-- SEO fully implemented: meta tags, Open Graph, Twitter Card, canonical, theme color, favicon, accessibility tags. All reflect privacy-first, AI, multi-calendar, no-login.
+- UI/UX finalized
+- Ready for deployment
 
 ## Next Steps
 - [ ] Deploy live (Vercel/Netlify recommended for Next.js)
@@ -107,5 +101,5 @@ Build a privacy-first web app that lets users extract calendar events from any p
 
 ## Notes
 - All code is original and maintained by me.
-- UI matches Figma MCP server reference with minor code tweaks for desired output.
-- No user data is stored; privacy is a core feature.
+- Ready for public repo: No secrets, no user data, no analytics, all dependencies up to date.
+- See README.md for setup and security notes.

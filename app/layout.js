@@ -3,6 +3,7 @@ import "../public/fonts.css";
 import { Analytics } from "@vercel/analytics/react";
 
 export const metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
   title: 'calevents | Free AI Calendar Link Generator',
   description: 'calevents makes it easy to turn any text, email, or message into ready-to-use Google, Outlook, or .ics calendar links. 100% free, private, and no login needed. Perfect for meetings, reminders, and events.',
   keywords: ['calevents', 'calendar event generator', 'ai calendar', 'google calendar link', 'outlook calendar link', 'ics generator', 'free calendar tool', 'add to calendar', 'event parser', 'privacy-first calendar', 'natural language to calendar', 'calendar invite ai', 'calevents.vercel.app'],
