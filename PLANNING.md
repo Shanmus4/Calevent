@@ -43,6 +43,12 @@ Build a privacy-first web app that lets users extract calendar events from any p
 - [x] Environment variable/config documentation
 - [x] Unit tests for event extraction
 
+## Safety & Privacy
+- All environment variables and secrets are stored in `.env.local` and never committed.
+- No user data is stored or tracked anywhere in the app.
+- All event extraction happens via the Gemini API and is not retained.
+- All calendar links are generated client-side for maximum privacy.
+
 ## Stretch Goals
 - [ ] Advanced recurrence and edge case handling
 - [ ] UI polish and accessibility improvements (Figma MCP server integration)

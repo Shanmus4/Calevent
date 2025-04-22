@@ -20,3 +20,9 @@
 - [ ] Add support for more calendar platforms
 - [ ] Improve accessibility and mobile UX
 - [ ] Add privacy statement to UI
+
+## Safety & Privacy Checklist
+- [x] .env and all secrets are gitignored
+- [x] No API keys or sensitive data in repo
+- [x] No user data stored or logged
+- [x] All calendar links generated client-side

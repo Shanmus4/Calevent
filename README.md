@@ -13,10 +13,10 @@ A modern, privacy-first web app for extracting calendar events from your emails,
 
 ## Getting Started
 
-### 1. Fork and Clone the Repo
+### 1. Clone the Repository
 ```sh
-git clone https://github.com/YOUR_USERNAME/calendar-event-generator.git
-cd calendar-event-generator
+git clone https://github.com/Shanmus4/Calevent.git
+cd Calevent
 ```
 
 ### 2. Install Dependencies
@@ -59,6 +59,16 @@ App will be available at [http://localhost:3000](http://localhost:3000)
 - You must provide your own Gemini API key (see above).
 - No external server or backend is required—everything runs via Next.js API routes.
 - All calendar links (Google, Outlook, ICS) are generated client-side and never leave your browser.
+
+## Safety & Privacy
+- **Never commit your `.env` or any file containing API keys or secrets.**
+- All sensitive keys must be stored in `.env.local` (which is gitignored by default).
+- No user data is ever stored or transmitted to any server except the Gemini API (for event extraction).
+- All calendar links are generated on the client and never leave your browser.
+- Before pushing, always review your commit for accidental secrets or sensitive data.
+
+## GitHub Repo
+This project is now available at: [https://github.com/Shanmus4/Calevent](https://github.com/Shanmus4/Calevent)
 
 ## Styling
 - This project uses simple custom CSS for all styling (see `app/globals.css`). No Tailwind or CSS frameworks.
