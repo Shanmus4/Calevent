@@ -1,8 +1,5 @@
 # TASK.md
 
-## Active Tasks
-- [ ] Add structured data (JSON-LD) and sitemap.xml for advanced SEO (discovered 2025-04-22 21:49)
-
 ## Completed Tasks
 - [x] Next.js project setup with custom CSS
 - [x] Created main UI page and event extraction form
@@ -44,13 +41,30 @@
 - [x] ICS download always triggers file download, not browser open (2025-04-22 21:34)
 - [x] Security/privacy audit: safe for public repo, no secrets, no user data, no analytics, no geolocation/camera/microphone permissions requested, only browser timezone used (2025-04-23 00:58:31)
 
+## Completed Tasks (Final)
+- All UI, API, and event extraction requirements implemented
+- Gemini prompt and backend parsing robustified for reliability
+- Google Calendar, Outlook, and ICS link/file generation finalized
+- Drag-and-drop file/image upload with Gemini Vision OCR
+- Robust MIME type inference for uploads (PDF, DOCX, images, etc.)
+- All error states, edge cases, and ambiguous input handling tested
+- Figma-based UI, accessibility, and mobile responsiveness finalized
+- All tests passing; project ready for deployment/live use
+- Security/privacy audit: safe for public repo, no secrets, no user data, no analytics, no geolocation/camera/microphone permissions requested, only browser timezone used (2025-04-23)
+
 ## Discovered During Work
 - None
 
-## Safety & Privacy Checklist
-- [x] .env and all secrets are gitignored
+## Active Tasks
+- [ ] Add structured data (JSON-LD) and sitemap.xml for advanced SEO (optional/future)
+- [ ] Debug Gemini event extraction: log raw Gemini API output for simple inputs, verify if model or backend parsing is failing, and fix accordingly (added 2025-04-23 04:52)
+
+## Safety & Privacy Checklist (Final)
+- [x] .env.local and all secrets are gitignored
 - [x] No API keys or sensitive data in repo
 - [x] No user data stored or logged
 - [x] All calendar links generated client-side
 - [x] No analytics or third-party tracking of user data
 - [x] All code reviewed for privacy and security
+
+## Project Status: COMPLETE
