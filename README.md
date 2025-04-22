@@ -8,7 +8,6 @@ A modern, privacy-first web app for extracting calendar events from your emails,
 - Main frame and results section now feature smooth, modern animations.
 
 ## Upcoming
-- SEO improvements for better search visibility.
 - Deployment to Vercel/Netlify.
 
 ## Features
@@ -74,6 +73,10 @@ App will be available at [http://localhost:3000](http://localhost:3000)
 - Minor code tweaks were made to achieve the desired output and match Figma reference
 - Error and empty state handling for user feedback
 - Calendar icon favicon for a professional look
+
+## SEO & Metadata
+- Full SEO metadata added: title, description, keywords, Open Graph, Twitter Card, canonical, favicon, theme color, accessibility tags.
+- Project is privacy-first, AI-powered, supports Google/Outlook/ICS, and requires no login.
 
 ## Contributing & Feedback
 If you have suggestions, bug reports, or want to contribute:

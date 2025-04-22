@@ -1,7 +1,6 @@
 # TASK.md
 
 ## Active Tasks
-- [ ] SEO optimization: meta tags, Open Graph, accessibility, etc. (2025-04-22 17:11)
 - [ ] Deploy live (after SEO)
 
 ## Completed Tasks
@@ -32,6 +31,7 @@
 - [x] Pruned unused dependencies: tailwindcss, postcss, autoprefixer
 - [x] Checked and minimized node_modules size
 - [x] Finalized animation for main frame and results section
+- [x] SEO optimization: meta tags, Open Graph, accessibility, etc. (2025-04-22 17:13)
 
 ## Discovered During Work
 - [ ] Add more prompt examples for edge-case event types (future)
