@@ -118,15 +118,15 @@ export default function Home() {
       try {
         // Get user's local timezone only
         const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        // Remove all geolocation usage
-        console.log('[calevents] Detected timezone:', timezone);
+        // Get user's current local time in ISO format
+        const currentTime = new Date().toISOString();
         if (!timezone) {
           alert('Could not detect your timezone. Please check your device settings or try a different browser.');
         }
         const res = await fetch("/api/parse", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: inputValue, timezone })
+          body: JSON.stringify({ text: inputValue, timezone, currentTime })
         });
         const data = await res.json();
         console.log('[calevents] AI backend returned:', data.events);

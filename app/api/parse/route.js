@@ -1,11 +1,17 @@
 import { NextResponse } from 'next/server'
 
+// Helper: Format date as UTC for Google Calendar (YYYYMMDDTHHMMSSZ)
+function formatDateUTC(dateStr) {
+  const date = new Date(dateStr);
+  return date.toISOString().replace(/[-:]/g, '').replace('.000Z', 'Z').replace('T', 'T');
+}
+
 // Helper: Generate Google Calendar link
 function generateGoogleCalendarLink(event) {
   const base = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
   const params = [
     `text=${encodeURIComponent(event.title)}`,
-    `dates=${event.start.replace(/[-:]/g, '').replace(/\.\d+Z$/, '').replace('T', 'T').replace(/\+/g, 'Z')}/${event.end.replace(/[-:]/g, '').replace(/\.\d+Z$/, '').replace('T', 'T').replace(/\+/g, 'Z')}`,
+    `dates=${formatDateUTC(event.start)}/${formatDateUTC(event.end)}`,
     `details=${encodeURIComponent(event.description)}`,
     `location=${encodeURIComponent(event.location || '')}`
   ].join('&')
@@ -14,7 +20,7 @@ function generateGoogleCalendarLink(event) {
 
 // Helper: Generate .ics file content
 function generateICS(event) {
-  return `BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:${event.title}\nDESCRIPTION:${event.description}\nDTSTART:${event.start.replace(/[-:]/g, '').replace(/\.\d+Z$/, '').replace('T', 'T').replace(/\+/g, 'Z')}\nDTEND:${event.end.replace(/[-:]/g, '').replace(/\.\d+Z$/, '').replace('T', 'T').replace(/\+/g, 'Z')}\nLOCATION:${event.location || ''}\nEND:VEVENT\nEND:VCALENDAR`;
+  return `BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:${event.title}\nDESCRIPTION:${event.description}\nDTSTART:${formatDateUTC(event.start)}\nDTEND:${formatDateUTC(event.end)}\nLOCATION:${event.location || ''}\nEND:VEVENT\nEND:VCALENDAR`;
 }
 
 // Helper: Generate Outlook Calendar link
@@ -31,7 +37,7 @@ function generateOutlookCalendarLink(event) {
 }
 
 export async function POST(req) {
-  const { text, timezone } = await req.json()
+  const { text, timezone, currentTime } = await req.json()
   // --- Gemini API Integration ---
   const GEMINI_API_KEY = process.env.GEMINI_API_KEY
   const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash'
@@ -42,11 +48,116 @@ export async function POST(req) {
 
   // Use the user's timezone if provided, else fallback
   const tz = timezone || process.env.LOCAL_TIMEZONE || 'Asia/Kolkata';
-  console.log('[calevents] Backend received timezone:', timezone, 'Using tz:', tz);
-  const now = new Date();
+  // Use the user's local time if provided, else fallback to server time
+  const now = currentTime ? new Date(currentTime) : new Date();
   const nowStr = now.toLocaleString('en-CA', { timeZone: tz, hour12: false }).replace(',', '');
   console.log('[calevents] Backend nowStr for prompt:', nowStr);
-  const prompt = `You are an expert event extraction API for calendar tools. Your job is to analyze any user input—especially pasted booking details, tickets, itineraries, or schedules—and extract every possible event a user might want to add to their calendar.\n\nYour most important task is to read the user's input carefully, understand what kind of event(s) it describes, and tailor the extracted JSON events accordingly.\n\nDo NOT miss any important data. Different event types (flights, hotels, buses, trains, meetings, appointments, etc.) may require different extraction logic. Think deeply about the context and details before creating the JSON.\n\nWhen extracting start and end times for events, use logic that matches the real-world meaning of the event:\n- For journeys (bus, train, flight): a single event from start to end time is appropriate.\n- For bookings with a check-in and check-out (e.g., hotels, rooms): create two separate events—one for check-in, one for check-out—rather than a single multi-day event.\n- For any other case, use your best judgment to split or combine events so the calendar makes sense for the user.\n\nFor each event, include a notification field with the perfect reminder time for that event type. For example:\n- For flights: notification should be 3 or 4 hours before takeoff.\n- For hotel/room bookings: notification should be 30 minutes before check-in, and 1 hour before check-out.\n- For movies: notification should be 1 hour before start.\n- For exercise/workout: notification should be 5 minutes before.\n- For other event types, use your best judgment.\n\nIf the input describes multiple events, extract each one separately. For each event, include:\n- title: concise and context-specific\n- description: extremely thorough and organized, with all important details (emoji, heading, value per line, blank lines between)\n- start: ISO 8601 datetime string with timezone offset\n- end: ISO 8601 datetime string (if missing, set end = start + 1 hour)\n- location: as detailed as possible\n- notification: ISO 8601 datetime or relative offset (e.g., '3 hours before start')\n\nIf information is missing, fill in sensible defaults.\n\nNever include explanations or markdown—output ONLY the JSON array.\n\nExample:\n[\n  {\n    "title": "Bus: Mumbai to Goa",\n    "description": "🚌 Bus: RedBus 1234\\n\\n🛫 Departure: Mumbai Central\\n\\n🛬 Arrival: Goa Panjim\\n\\n🧑 Passenger: Akshay\\n\\n🏷️ Ticket: RBX123456",\n    "start": "2025-04-27T08:00:00+05:30",\n    "end": "2025-04-27T21:00:00+05:30",\n    "location": "Mumbai Central to Goa Panjim",\n    "notification": "1 hour before start"\n  },\n  {\n    "title": "Hotel Check-in: Taj Palace",\n    "description": "🏷️ Reservation Code: HM8PJKC9MZ\\n\\n👤 Guest: Akshay\\n\\n📍 Address: Taj Palace, Mumbai\\n\\n📞 Support: 1800-123-4567",\n    "start": "2025-04-27T14:00:00+05:30",\n    "end": "2025-04-27T15:00:00+05:30",\n    "location": "Taj Palace, Mumbai",\n    "notification": "30 minutes before start"\n  },\n  {\n    "title": "Hotel Check-out: Taj Palace",\n    "description": "🏷️ Reservation Code: HM8PJKC9MZ\\n\\n👤 Guest: Akshay\\n\\n📍 Address: Taj Palace, Mumbai\\n\\n📞 Support: 1800-123-4567",\n    "start": "2025-04-29T11:00:00+05:30",\n    "end": "2025-04-29T12:00:00+05:30",\n    "location": "Taj Palace, Mumbai",\n    "notification": "1 hour before start"\n  }\n]\n\nEmail or message:\n${text.trim()}`;
+  const prompt = `You are the world's best calendar event extraction AI. CURRENT DATETIME: ${nowStr}
+USER TIMEZONE: ${tz}
+
+---
+
+Your job:
+- Read the user's input (see USER INPUT at the end)
+- Understand the context and event type (e.g., flight, hotel, meeting, appointment, class, delivery, reminder, etc.)
+- Extract every possible event the user might want to add to their calendar
+- Output a strict JSON array of event objects (see Output Format)
+
+---
+
+Output Format (MUST work on iOS/Apple Calendar, Google Calendar, Outlook):
+{
+  "title": "string, concise, context-specific",
+  "description": "string, thorough, organized, with emoji and all details (one per line, blank lines between sections)",
+  "start": "ISO 8601 datetime string WITH timezone offset (e.g. 2025-04-24T14:00:00+05:30)",
+  "end": "ISO 8601 datetime string WITH timezone offset (if missing, set end = start + 1 hour)",
+  "location": "string, as detailed as possible",
+  "notification": "ISO 8601 datetime or relative offset (e.g., '1 hour before start')"
+}
+
+---
+
+IMPORTANT RULES:
+- Always use the CURRENT DATETIME and USER TIMEZONE above as the reference for interpreting relative dates like 'tomorrow', 'next Monday', etc.
+- If the user enters a date in the past (e.g., yesterday), create the event for the most recent occurrence, but warn if the event is in the past.
+- If the user uses words like 'at 8', 'at 9', 'breakfast at 8', assume AM for breakfast/morning events, PM for evening/late events (use context and common sense).
+- If the user enters gibberish or input with no valid date/time, return an error: "No events extracted." However, if the input is a simple meal, reminder, or meeting with a time, always extract it as an event.
+- Support expressions like '10 days from now', 'tomorrow', '2 days from yesterday', and resolve them using CURRENT DATETIME.
+- Never guess the year/month/day; always use the current date as the base for all relative or incomplete dates.
+- If any info is missing, fill with sensible defaults (e.g., end = start + 1 hour, location = "(none)").
+- Output ONLY the JSON array, no markdown, explanation, or extra text.
+- For iOS compatibility, all datetime strings must include timezone offset (never just 'Z').
+- For multi-day bookings (e.g., hotels), create two events: one for check-in, one for check-out.
+- For journeys (bus, train, flight): a single event from start to end time is appropriate.
+- For bookings with check-in/check-out: separate events for each.
+- For recurring events, create only the first instance unless recurrence is explicitly requested.
+- Add a notification field with the ideal reminder time for that event type (e.g., flights: 3 hours before, hotel check-in: 30 min before, meetings: 1 hour before, movies: 1 hour before, exercise: 5 min before, etc.)
+- If the input describes multiple events, extract each one separately.
+- NEVER include explanations, markdown, or extra text—output ONLY the JSON array.
+
+---
+
+EDGE CASES & EXAMPLES:
+1. Meeting:
+[
+  {
+    "title": "Lunch Meeting",
+    "description": "🍽️ Lunch with team\n\n👤 Attendees: Akshay, Priya\n\n📍 Cafe Coffee Day, Mumbai",
+    "start": "2025-04-24T14:00:00+05:30",
+    "end": "2025-04-24T15:00:00+05:30",
+    "location": "Cafe Coffee Day, Mumbai",
+    "notification": "1 hour before start"
+  }
+]
+
+2. Hotel Booking:
+[
+  {
+    "title": "Hotel Check-in: Taj Palace",
+    "description": "🏷️ Reservation Code: HM8PJKC9MZ\n\n👤 Guest: Akshay\n\n📍 Address: Taj Palace, Mumbai\n\n📞 Support: 1800-123-4567",
+    "start": "2025-04-27T14:00:00+05:30",
+    "end": "2025-04-27T15:00:00+05:30",
+    "location": "Taj Palace, Mumbai",
+    "notification": "30 minutes before start"
+  },
+  {
+    "title": "Hotel Check-out: Taj Palace",
+    "description": "🏷️ Reservation Code: HM8PJKC9MZ\n\n👤 Guest: Akshay\n\n📍 Address: Taj Palace, Mumbai\n\n📞 Support: 1800-123-4567",
+    "start": "2025-04-29T11:00:00+05:30",
+    "end": "2025-04-29T12:00:00+05:30",
+    "location": "Taj Palace, Mumbai",
+    "notification": "1 hour before start"
+  }
+]
+
+3. Flight:
+[
+  {
+    "title": "Flight: Mumbai to Goa",
+    "description": "✈️ Flight: Indigo 6E-1234\n\n🛫 Departure: Mumbai Airport\n\n🛬 Arrival: Goa Airport\n\n🧑 Passenger: Akshay\n\n🏷️ Ticket: IND123456",
+    "start": "2025-04-27T08:00:00+05:30",
+    "end": "2025-04-27T10:00:00+05:30",
+    "location": "Mumbai Airport to Goa Airport",
+    "notification": "3 hours before start"
+  }
+]
+
+4. Movie:
+[
+  {
+    "title": "Movie: Avengers Endgame",
+    "description": "🎬 Movie: Avengers Endgame\n\n📍 PVR Cinemas, Mumbai\n\n🕒 Showtime: 7:00 PM",
+    "start": "2025-04-24T19:00:00+05:30",
+    "end": "2025-04-24T22:00:00+05:30",
+    "location": "PVR Cinemas, Mumbai",
+    "notification": "1 hour before start"
+  }
+]
+
+---
+
+USER INPUT:
+${text.trim()}`;
 
   // Call Gemini API
   const response = await fetch(
@@ -71,13 +182,34 @@ export async function POST(req) {
   let jsonString = ''
   try {
     jsonString = gemini.candidates?.[0]?.content?.parts?.[0]?.text || ''
+    console.log('[calevents][DEBUG] Raw Gemini output:', JSON.stringify(jsonString))
     // Remove markdown, explanations, etc.
-    const match = jsonString.match(/\[.*\]/s)
-    if (!match) throw new Error('No JSON array found')
-    const events = JSON.parse(match[0])
-    if (!Array.isArray(events) || events.length === 0) {
+    // Try to extract a JSON array or object robustly
+    let match = jsonString.match(/\[.*\]/s);
+    if (!match) {
+      // Try to match a JSON object if array not found
+      match = jsonString.match(/\{.*\}/s);
+    }
+    if (!match) {
+      // If no JSON found, check for common Gemini error outputs
+      if (jsonString.trim().toLowerCase().includes('no events extracted')) {
+        return NextResponse.json({ events: [], error: 'No events extracted from your input', gemini_raw: jsonString }, { status: 200 })
+      }
+      // If Gemini output is empty or just whitespace
+      if (!jsonString.trim()) {
+        return NextResponse.json({ events: [], error: 'Gemini returned no output', gemini_raw: jsonString }, { status: 200 })
+      }
+      // Fallback: return raw output for debugging
+      return NextResponse.json({ events: [], error: 'Unrecognized Gemini output format', gemini_raw: jsonString }, { status: 200 })
+    }
+    let events = JSON.parse(match[0]);
+    // If it's a single event object, wrap in array
+    if (!Array.isArray(events)) {
+      events = [events];
+    }
+    if (events.length === 0) {
       // No events extracted, treat as gibberish or no actionable info
-      return NextResponse.json({ events: [], error: 'Cannot extract events from your input' }, { status: 200 })
+      return NextResponse.json({ events: [], error: 'No events extracted from your input', gemini_raw: jsonString }, { status: 200 })
     }
     // Add calendar links
     const eventsWithLinks = events.map(event => {
@@ -96,8 +228,8 @@ export async function POST(req) {
         ics_link: `/api/ics/${encodeURIComponent(event.title || 'event')}?${icsParams}`
       };
     });
-    return NextResponse.json({ events: eventsWithLinks })
+    return NextResponse.json({ events: eventsWithLinks, gemini_raw: jsonString })
   } catch (e) {
-    return NextResponse.json({ events: [], error: 'Cannot extract events from your input' }, { status: 200 })
+    return NextResponse.json({ events: [], error: 'Cannot extract events from your input', gemini_raw: jsonString }, { status: 200 })
   }
 }
