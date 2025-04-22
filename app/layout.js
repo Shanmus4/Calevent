@@ -1,4 +1,5 @@
 import './globals.css'
+import "../public/fonts.css";
 
 export const metadata = {
   title: 'Calendar Event Generator',
@@ -8,6 +9,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <head />
       <body>{children}</body>
     </html>
   )

@@ -18,10 +18,11 @@ Build a privacy-first web app that lets users extract calendar events from any p
 - **Event Parsing:** Gemini API (integrated in `/app/api/parse/route.js`)
 - **Calendar Links:** Google, Outlook, and .ics links generated on the fly
 - **No persistent backend or database**
+- **UI Design Reference:** Figma MCP server used for pixel-perfect UI implementation
 
 ## User Flow
 1. User pastes event or email text
-2. Clicks 'Extract Events'
+2. Clicks 'Create Invites'
 3. Next.js API route calls Gemini, parses events
 4. UI displays all extracted events, calendar links, and .ics downloads
 
@@ -30,10 +31,13 @@ Build a privacy-first web app that lets users extract calendar events from any p
   - `page.js` — Main UI
   - `api/parse/route.js` — API endpoint for event parsing
   - `globals.css` — Custom CSS
+  - `layout.js` — Root layout and favicon
+  - `favicon.svg` — Calendar icon favicon (from Figma MCP server reference)
+- `/public` — Static assets (favicon, fonts)
 - `/tests` — Pytest unit tests for event extraction
 - `README.md`, `PLANNING.md`, `TASK.md` — Docs
 
-## Initial Feature List
+## Feature List
 - [x] Next.js project setup with custom CSS
 - [x] API route for event extraction
 - [x] Google Calendar, Outlook, and .ics link generation
@@ -42,6 +46,11 @@ Build a privacy-first web app that lets users extract calendar events from any p
 - [x] Responsive, minimal UI
 - [x] Environment variable/config documentation
 - [x] Unit tests for event extraction
+- [x] Figma MCP server integration for UI reference
+- [x] Calendar type dropdown with icons, animation, and width sync
+- [x] Error state UI for missing event details
+- [x] Favicon (calendar icon)
+- [x] Minor code tweaks for design accuracy
 
 ## Safety & Privacy
 - All environment variables and secrets are stored in `.env.local` and never committed.
@@ -53,7 +62,11 @@ Build a privacy-first web app that lets users extract calendar events from any p
 - [ ] Advanced recurrence and edge case handling
 - [ ] UI polish and accessibility improvements (Figma MCP server integration)
 - [ ] Mobile-first enhancements
+- [ ] Add fallback PNG/ICO favicon for maximum browser compatibility
+- [ ] Add loading state for event parsing
+- [ ] Add keyboard navigation for dropdown
 
 ## Notes
 - All code is original and maintained by me.
+- UI matches Figma MCP server reference with minor code tweaks for desired output.
 - No user data is stored; privacy is a core feature.
