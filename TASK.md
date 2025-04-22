@@ -28,8 +28,12 @@
 - [x] Added favicon (calendar icon)
 - [x] Minor code tweaks for design accuracy based on Figma feedback
 - [x] Polish UI and accessibility (Figma MCP server integration)
+- [x] Update Gemini AI prompt to generate more descriptive event titles (e.g., include room/property name for bookings, airline/flight number for flights, etc.) (2025-04-22 16:07)
+- [x] Ensure dropdown and result button UI improvements: icon fixes, shorter labels, correct .ics label (2025-04-22 16:07)
+- [x] Refactor CSS for scroll/overflow and scale (2025-04-22 16:07)
 
 ## Discovered During Work
+- [ ] Add more prompt examples for edge-case event types (future)
 
 ## Safety & Privacy Checklist
 - [x] .env and all secrets are gitignored

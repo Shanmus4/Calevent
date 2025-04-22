@@ -66,6 +66,22 @@ Build a privacy-first web app that lets users extract calendar events from any p
 - [ ] Add loading state for event parsing
 - [ ] Add keyboard navigation for dropdown
 
+## Recent Updates
+### [2025-04-22]
+- Gemini AI prompt now generates more descriptive event titles (room/property/flight etc. in title where possible)
+- Dropdown UI: correct icons, shorter button labels, .ics label clarified
+- CSS: improved scroll/overflow handling, consistent scaling
+
+#### Prompt Design
+- Titles are concise but include key info (e.g., room name, airline)
+- Descriptions are emoji+heading+content, spaced, with priority info first
+- Timezone logic: user-specified > inferred from context > default
+
+#### UI/UX
+- Dropdown trigger and selected item icons are now correct and visually distinct
+- Result button labels are short and clear
+- Page is fully scrollable, no horizontal overflow, scaled for compactness
+
 ## Notes
 - All code is original and maintained by me.
 - UI matches Figma MCP server reference with minor code tweaks for desired output.

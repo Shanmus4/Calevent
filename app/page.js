@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from "react";
 const CALENDAR_TYPES = [
   { label: "Google", value: "google" },
   { label: "Outlook", value: "outlook" },
-  { label: "iCalendar", value: "ical" },
+  { label: ".ics (iCalendar/Desktop Mail Application)", value: "ical" },
 ];
 
 // Dummy event title and parse state for demo; replace with real logic as needed
@@ -14,10 +14,10 @@ const DEMO_EVENT_TITLE = "Team Sync Meeting";
 export default function Home() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [calendarType, setCalendarType] = useState("google");
-  const [parsingComplete, setParsingComplete] = useState(false); // set to true for demo
-  const [eventTitle, setEventTitle] = useState(DEMO_EVENT_TITLE); // replace with real event title
+  const [results, setResults] = useState([]); // [{title, calendarType, link, ...}]
   const [inputValue, setInputValue] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const dropdownRef = useRef(null);
   const selectorRef = useRef(null);
 
@@ -52,9 +52,10 @@ export default function Home() {
   }
 
   function getResultButtonText(type) {
-    if (type === "google") return "Open Google Calendar Link";
-    if (type === "outlook") return "Open Outlook Calendar Link";
-    return "Download ics file";
+    if (type === "google") return "Google Calendar";
+    if (type === "outlook") return "Outlook";
+    if (type === "ical") return "Download .ics";
+    return "Calendar";
   }
 
   function getResultButtonIcon(type) {
@@ -76,16 +77,112 @@ export default function Home() {
     );
   }
 
-  function handleCreateInvites() {
-    // Demo: Only show result if textarea has content
+  // Dropdown trigger icon (chevron)
+  function DropdownChevronIcon() {
+    return (
+      <span className="calendar-type-dropdown-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M8.25 15.0001L12 18.7501L15.75 15.0001M8.25 9.00006L12 5.25006L15.75 9.00006" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </span>
+    );
+  }
+
+  // Dropdown selected item icon (checkmark)
+  function DropdownCheckIcon() {
+    return (
+      <span className="calendar-type-dropdown-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M21 7.00006L9 19.0001L3.5 13.5001L4.91 12.0901L9 16.1701L19.59 5.59006L21 7.00006Z" fill="black"/>
+        </svg>
+      </span>
+    );
+  }
+
+  async function handleCreateInvites() {
     if (inputValue.trim().length > 0) {
-      setEventTitle(inputValue.trim()); // In real app, use parsed event title
-      setParsingComplete(true);
       setError("");
+      setLoading(true);
+      try {
+        const res = await fetch("/api/parse", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: inputValue })
+        });
+        const data = await res.json();
+        console.log('AI backend returned:', data.events);
+        if (data.error) {
+          setResults([]);
+          setError(data.error);
+          setLoading(false);
+          return;
+        }
+        // data.events is an array of event JSONs from AI
+        const newResults = (data.events || []).map(event => {
+          let link = "";
+          if (calendarType === "google") {
+            // Google Calendar link generation
+            link = generateGoogleCalendarLink(event);
+          } else if (calendarType === "outlook") {
+            link = generateOutlookCalendarLink(event);
+          } else if (calendarType === "ical") {
+            // For ics, we generate a blob URL for download
+            const icsContent = generateICS(event);
+            const blob = new Blob([icsContent], { type: 'text/calendar' });
+            link = URL.createObjectURL(blob);
+          }
+          return {
+            title: event.title,
+            calendarType,
+            link,
+            isICS: calendarType === "ical"
+          };
+        });
+        console.log('Frontend results to render:', newResults);
+        setResults(newResults);
+      } catch (e) {
+        setResults([]);
+        setError("Failed to parse events. Please try again.");
+      } finally {
+        setLoading(false);
+      }
     } else {
-      setParsingComplete(false);
       setError("Event details not provided!");
+      setResults([]);
     }
+  }
+
+  // --- Helper functions for link generation ---
+  function generateGoogleCalendarLink(event) {
+    const base = 'https://calendar.google.com/calendar/render?action=TEMPLATE';
+    const params = [
+      `text=${encodeURIComponent(event.title)}`,
+      `dates=${formatDate(event.start)}/${formatDate(event.end)}`,
+      `details=${encodeURIComponent(event.description)}`,
+      `location=${encodeURIComponent(event.location || '')}`
+    ].join('&');
+    return `${base}&${params}`;
+  }
+
+  function generateOutlookCalendarLink(event) {
+    const base = 'https://outlook.live.com/calendar/0/deeplink/compose?path=/calendar/action/compose&rru=addevent';
+    const params = [
+      `subject=${encodeURIComponent(event.title)}`,
+      `body=${encodeURIComponent(event.description)}`,
+      `startdt=${encodeURIComponent(event.start)}`,
+      `enddt=${encodeURIComponent(event.end)}`,
+      `location=${encodeURIComponent(event.location || '')}`
+    ].join('&');
+    return `${base}&${params}`;
+  }
+
+  function generateICS(event) {
+    return `BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:${event.title}\nDESCRIPTION:${event.description}\nDTSTART:${formatDate(event.start)}\nDTEND:${formatDate(event.end)}\nLOCATION:${event.location || ''}\nEND:VEVENT\nEND:VCALENDAR`;
+  }
+
+  function formatDate(dateStr) {
+    // Format date as YYYYMMDDTHHmmssZ (basic, assumes input is ISO)
+    return dateStr.replace(/[-:]/g, '').replace(/\.\d+Z$/, '').replace('T', 'T').replace(/\+/g, 'Z');
   }
 
   return (
@@ -113,11 +210,7 @@ export default function Home() {
             style={{ position: "relative" }}
           >
             <span className="calendar-type-dropdown-label">{CALENDAR_TYPES.find(t => t.value === calendarType).label}</span>
-            <span className="calendar-type-dropdown-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <path d="M8.25 15.0001L12 18.7501L15.75 15.0001M8.25 9.00006L12 5.25006L15.75 9.00006" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </span>
+            <DropdownChevronIcon />
             <div
               ref={dropdownRef}
               className={
@@ -136,11 +229,7 @@ export default function Home() {
                 >
                   <span className="calendar-type-dropdown-item-label">{type.label}</span>
                   {calendarType === type.value && (
-                    <span className="calendar-type-dropdown-item-icon">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                        <path d="M21 7.00006L9 19.0001L3.5 13.5001L4.91 12.0901L9 16.1701L19.59 5.59006L21 7.00006Z" fill="black"/>
-                      </svg>
-                    </span>
+                    <DropdownCheckIcon />
                   )}
                 </div>
               ))}
@@ -160,26 +249,50 @@ export default function Home() {
           />
         </div>
         <div className="main-btn-container">
-          <button className="main-action-btn" onClick={handleCreateInvites}>Create Invites</button>
+          <button className="main-action-btn" onClick={handleCreateInvites} disabled={loading}>
+            {loading ? 'Creating Invites' : 'Create Invites'}
+            {loading && (
+              <span className="loading-spinner" aria-label="Loading" />
+            )}
+          </button>
         </div>
+        {(error || results.length > 0) && (
+          <div className="main-result-divider" />
+        )}
         {error && (
           <div className="main-result-section-wrapper">
-            <div className="main-result-divider" />
             <div className="result-section" style={{ border: '1px solid #ff4d4f', background: '#fff6f6' }}>
               <span style={{ color: '#d8000c', fontWeight: 600, fontFamily: 'Inter, Arial, sans-serif' }}>{error}</span>
             </div>
           </div>
         )}
-        {parsingComplete && (
+        {results.length > 0 && (
           <div className="main-result-section-wrapper">
-            <div className="main-result-divider" />
-            <div className="result-section">
-              <span className="result-section-title">{eventTitle}</span>
-              <button className="result-section-btn">
-                {getResultButtonText(calendarType)}
-                {getResultButtonIcon(calendarType)}
-              </button>
-            </div>
+            {results.map((result, idx) => (
+              <div className="result-section" key={idx}>
+                <span className="result-section-title">{result.title}</span>
+                {result.isICS ? (
+                  <a
+                    className="result-section-btn no-underline"
+                    href={result.link}
+                    download={`${result.title || 'event'}.ics`}
+                  >
+                    {getResultButtonText(result.calendarType)}
+                    {getResultButtonIcon(result.calendarType)}
+                  </a>
+                ) : (
+                  <a
+                    className="result-section-btn no-underline"
+                    href={result.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {getResultButtonText(result.calendarType)}
+                    {getResultButtonIcon(result.calendarType)}
+                  </a>
+                )}
+              </div>
+            ))}
           </div>
         )}
         {/* Add further main content as instructed */}
