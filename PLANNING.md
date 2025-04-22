@@ -82,6 +82,11 @@ Build a privacy-first web app that lets users extract calendar events from any p
 - Result button labels are short and clear
 - Page is fully scrollable, no horizontal overflow, scaled for compactness
 
+### [2025-04-22] UI Responsiveness & Polish
+- Body and main sections are now fully responsive (padding adjusts at <640px)
+- Main frame is visually compact (scale, gap, padding)
+- Footer note is centered and spaced for clarity
+
 ## Notes
 - All code is original and maintained by me.
 - UI matches Figma MCP server reference with minor code tweaks for desired output.
