@@ -64,6 +64,8 @@ Build a privacy-first web app that lets users extract calendar events from any p
 - All calendar links are generated client-side for maximum privacy.
 - ICS downloads use Content-Disposition: attachment and frontend download attribute to force download.
 - Image uploads are processed in-memory and deleted after use.
+- **No geolocation, camera, or microphone permissions are ever requested.**
+- **Timezone is detected only via browser settings (Intl API); no location/device permissions needed.**
 
 ## Stretch Goals
 - [ ] Advanced recurrence and edge case handling

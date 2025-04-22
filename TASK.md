@@ -1,7 +1,7 @@
 # TASK.md
 
 ## Active Tasks
-- None
+- [ ] Add structured data (JSON-LD) and sitemap.xml for advanced SEO (discovered 2025-04-22 21:49)
 
 ## Completed Tasks
 - [x] Next.js project setup with custom CSS
@@ -42,7 +42,7 @@
 - [x] Gemini Vision API integration for drag-and-drop image-to-text extraction (2025-04-22 21:30)
 - [x] Robust MIME type inference and error handling for uploads (2025-04-22 21:30)
 - [x] ICS download always triggers file download, not browser open (2025-04-22 21:34)
-- [x] Security/privacy audit: safe for public repo, no secrets, no user data, no analytics (2025-04-22 21:36)
+- [x] Security/privacy audit: safe for public repo, no secrets, no user data, no analytics, no geolocation/camera/microphone permissions requested, only browser timezone used (2025-04-23 00:58:31)
 
 ## Discovered During Work
 - None

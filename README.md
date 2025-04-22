@@ -35,6 +35,8 @@ calevents makes it easy to turn any text, email, or message into ready-to-use Go
 - All event extraction and image parsing is done in-memory and deleted after use
 - Calendar links and .ics files are generated client-side for privacy
 - No analytics or third-party tracking
+- **No geolocation, camera, or microphone permissions are ever requested**
+- **Timezone is detected only via browser settings (Intl API); no location or device permissions needed**
 - **Safe for public repo: no secrets, no user data, no analytics, all dependencies up to date**
 
 ## Getting Started
