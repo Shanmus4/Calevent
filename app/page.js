@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from "react";
 const CALENDAR_TYPES = [
   { label: "Google", value: "google" },
   { label: "Outlook", value: "outlook" },
-  { label: ".ics (iCalendar/Desktop Mail Application)", value: "ical" },
+  { label: ".ics File Download(iCalendar)", value: "ical" },
 ];
 
 // Dummy event title and parse state for demo; replace with real logic as needed
@@ -159,14 +159,12 @@ export default function Home() {
           let link = "";
           if (calendarType === "google") {
             // Google Calendar link generation
-            link = generateGoogleCalendarLink(event);
+            link = event.google_link || generateGoogleCalendarLink(event);
           } else if (calendarType === "outlook") {
-            link = generateOutlookCalendarLink(event);
+            link = event.outlook_link || generateOutlookCalendarLink(event);
           } else if (calendarType === "ical") {
-            // For ics, we generate a blob URL for download
-            const icsContent = generateICS(event);
-            const blob = new Blob([icsContent], { type: 'text/calendar' });
-            link = URL.createObjectURL(blob);
+            // Use server-based .ics link for Apple/iCalendar
+            link = event.ics_link;
           }
           return {
             title: event.title,
@@ -358,26 +356,16 @@ function StaggeredResults({ results, getResultButtonText, getResultButtonIcon })
           }}
         >
           <span className="result-section-title">{result.title}</span>
-          {result.isICS ? (
-            <a
-              className="result-section-btn no-underline"
-              href={result.link}
-              download={`${result.title || 'event'}.ics`}
-            >
-              {getResultButtonText(result.calendarType)}
-              {getResultButtonIcon(result.calendarType)}
-            </a>
-          ) : (
-            <a
-              className="result-section-btn no-underline"
-              href={result.link}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {getResultButtonText(result.calendarType)}
-              {getResultButtonIcon(result.calendarType)}
-            </a>
-          )}
+          <a
+            className="result-section-btn no-underline"
+            href={result.link}
+            target={result.isICS ? undefined : "_blank"}
+            rel={result.isICS ? undefined : "noopener noreferrer"}
+            download={result.isICS ? undefined : false}
+          >
+            {getResultButtonText(result.calendarType)}
+            {getResultButtonIcon(result.calendarType)}
+          </a>
         </div>
       ))}
     </div>
