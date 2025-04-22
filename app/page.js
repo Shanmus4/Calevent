@@ -20,6 +20,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const dropdownRef = useRef(null);
   const selectorRef = useRef(null);
+  const [userLocation, setUserLocation] = useState(null);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -99,20 +100,54 @@ export default function Home() {
     );
   }
 
-  async function handleCreateInvites() {
+  // On mount, prompt for location and auto-create events if inputValue is present
+  useEffect(() => {
+    // Prompt for geolocation
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          console.log('[calevents] User location:', position.coords.latitude, position.coords.longitude);
+          setUserLocation({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          });
+        },
+        (error) => {
+          console.warn('[calevents] Location permission denied or unavailable:', error);
+        }
+      );
+    } else {
+      console.warn('[calevents] Geolocation not supported by this browser.');
+    }
+    if (inputValue.trim().length > 0) {
+      handleCreateEvents();
+    }
+    // eslint-disable-next-line
+  }, []);
+
+  async function handleCreateEvents() {
     if (inputValue.trim().length > 0) {
       setError("");
       setLoading(true);
       try {
         // Get user's local timezone
         const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        let lat = null, lng = null;
+        if (userLocation) {
+          lat = userLocation.latitude;
+          lng = userLocation.longitude;
+        }
+        console.log('[calevents] Detected timezone:', timezone, 'Lat:', lat, 'Lng:', lng);
+        if (!timezone) {
+          alert('Could not detect your timezone. Please check your device settings or try a different browser.');
+        }
         const res = await fetch("/api/parse", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: inputValue, timezone })
+          body: JSON.stringify({ text: inputValue, timezone, latitude: lat, longitude: lng })
         });
         const data = await res.json();
-        console.log('AI backend returned:', data.events);
+        console.log('[calevents] AI backend returned:', data.events);
         if (data.error) {
           setResults([]);
           setError(data.error);
@@ -140,11 +175,12 @@ export default function Home() {
             isICS: calendarType === "ical"
           };
         });
-        console.log('Frontend results to render:', newResults);
+        console.log('[calevents] Frontend results to render:', newResults);
         setResults(newResults);
       } catch (e) {
         setResults([]);
         setError("Failed to parse events. Please try again.");
+        console.error('[calevents] Error in handleCreateEvents:', e);
       } finally {
         setLoading(false);
       }
@@ -159,7 +195,7 @@ export default function Home() {
     const base = 'https://calendar.google.com/calendar/render?action=TEMPLATE';
     const params = [
       `text=${encodeURIComponent(event.title)}`,
-      `dates=${formatDate(event.start)}/${formatDate(event.end)}`,
+      `dates=${formatDateUTC(event.start)}/${formatDateUTC(event.end)}`,
       `details=${encodeURIComponent(event.description)}`,
       `location=${encodeURIComponent(event.location || '')}`
     ].join('&');
@@ -185,6 +221,11 @@ export default function Home() {
   function formatDate(dateStr) {
     // Format date as YYYYMMDDTHHmmssZ (basic, assumes input is ISO)
     return dateStr.replace(/[-:]/g, '').replace(/\.\d+Z$/, '').replace('T', 'T').replace(/\+/g, 'Z');
+  }
+
+  function formatDateUTC(dateStr) {
+    const date = new Date(dateStr);
+    return date.toISOString().replace(/[-:]/g, '').replace('.000Z', 'Z').replace('T', 'T');
   }
 
   return (
@@ -254,11 +295,12 @@ export default function Home() {
           />
         </div>
         <div className="main-btn-container">
-          <button className="main-action-btn" onClick={handleCreateInvites} disabled={loading}>
-            {loading ? 'Creating Invites' : 'Create Invites'}
-            {loading && (
-              <span className="loading-spinner" aria-label="Loading" />
-            )}
+          <button
+            className="main-action-btn"
+            onClick={handleCreateEvents}
+            disabled={loading}
+          >
+            {loading ? "Creating..." : "Create Events"}
           </button>
         </div>
         {(error || results.length > 0) && (
