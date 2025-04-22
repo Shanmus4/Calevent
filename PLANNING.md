@@ -66,7 +66,7 @@ Build a privacy-first web app that lets users extract calendar events from any p
 - [ ] Add loading state for event parsing
 - [ ] Add keyboard navigation for dropdown
 
-## Recent Updates
+## Recent Changes
 ### [2025-04-22]
 - Gemini AI prompt now generates more descriptive event titles (room/property/flight etc. in title where possible)
 - Dropdown UI: correct icons, shorter button labels, .ics label clarified
@@ -86,6 +86,21 @@ Build a privacy-first web app that lets users extract calendar events from any p
 - Body and main sections are now fully responsive (padding adjusts at <640px)
 - Main frame is visually compact (scale, gap, padding)
 - Footer note is centered and spaced for clarity
+
+### [2025-04-22]
+- Pruned unused dependencies: tailwindcss, postcss, autoprefixer removed. Project is now pure Next.js + React with custom CSS.
+- Implemented smooth main frame expansion and staggered result reveal animation for a modern, polished UX.
+- Error and result section logic unified for consistent appearance and animation.
+- node_modules size checked and minimized for deployment.
+
+## Next Steps
+- [ ] SEO optimization for better discoverability (meta tags, Open Graph, accessibility, etc.)
+- [ ] Deploy live (Vercel/Netlify recommended for Next.js)
+
+## Deployment Readiness
+- All unused packages removed
+- UI/UX finalized
+- Ready for SEO and deployment
 
 ## Notes
 - All code is original and maintained by me.

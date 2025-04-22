@@ -1,13 +1,8 @@
 # TASK.md
 
 ## Active Tasks
-- [ ] Add error handling and edge case handling
-- [ ] Add support for more calendar platforms
-- [ ] Improve accessibility and mobile UX
-- [ ] Add privacy statement to UI
-- [ ] Add fallback PNG/ICO favicon for maximum browser compatibility
-- [ ] Add loading state for event parsing
-- [ ] Add keyboard navigation for dropdown
+- [ ] SEO optimization: meta tags, Open Graph, accessibility, etc. (2025-04-22 17:11)
+- [ ] Deploy live (after SEO)
 
 ## Completed Tasks
 - [x] Next.js project setup with custom CSS
@@ -34,9 +29,13 @@
 - [x] Improve responsiveness: body padding and section paddings adjust for screens <640px (2025-04-22 16:29)
 - [x] Vertically center main title and scale main frame for compactness (2025-04-22 16:29)
 - [x] Add margin and centering to footer note (2025-04-22 16:29)
+- [x] Pruned unused dependencies: tailwindcss, postcss, autoprefixer
+- [x] Checked and minimized node_modules size
+- [x] Finalized animation for main frame and results section
 
 ## Discovered During Work
 - [ ] Add more prompt examples for edge-case event types (future)
+- No additional issues found during cleanup
 
 ## Safety & Privacy Checklist
 - [x] .env and all secrets are gitignored

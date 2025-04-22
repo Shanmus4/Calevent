@@ -74,6 +74,10 @@ export async function POST(req) {
     const match = jsonString.match(/\[.*\]/s)
     if (!match) throw new Error('No JSON array found')
     const events = JSON.parse(match[0])
+    if (!Array.isArray(events) || events.length === 0) {
+      // No events extracted, treat as gibberish or no actionable info
+      return NextResponse.json({ events: [], error: 'Cannot extract events from your input' }, { status: 200 })
+    }
     // Add calendar links
     const eventsWithLinks = events.map(event => ({
       ...event,
@@ -83,6 +87,6 @@ export async function POST(req) {
     }))
     return NextResponse.json({ events: eventsWithLinks })
   } catch (e) {
-    return NextResponse.json({ events: [], error: 'Failed to parse Gemini response', raw: jsonString }, { status: 500 })
+    return NextResponse.json({ events: [], error: 'Cannot extract events from your input' }, { status: 200 })
   }
 }

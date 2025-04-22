@@ -71,7 +71,7 @@ export default function Home() {
     return (
       <span className="result-section-btn-icon">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M10 4.00012H6C5.46957 4.00012 4.96086 4.21084 4.58579 4.58591C4.21071 4.96098 4 5.46969 4 6.00012V18.0001C4 18.5306 4.21071 19.0393 4.58579 19.4143C4.96086 19.7894 5.46957 20.0001 6 20.0001H18C18.5304 20.0001 19.0391 19.7894 19.4142 19.4143C19.7893 19.0393 20 18.5306 20 18.0001V14.0001M12 12.0001L20 4.00012M20 4.00012V9.00012M20 4.00012H15" stroke="#5C5C5C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M10 4.00012H6C5.46957 4.00012 4.96086 4.21084 4.58579 4.58591C4.21071 4.96098 4 5.46969 4 6.00012V18.0001C4 18.5304 4.21071 19.0391 4.58579 19.4143C4.96086 19.7893 5.46957 20.0001 6 20.0001H18C18.5304 20.0001 19.0391 19.7893 19.4142 19.4143C19.7893 19.0391 20 18.5304 20 18.0001V14.0001M12 12.0001L20 4.00012M20 4.00012V9.00012M20 4.00012H15" stroke="#5C5C5C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </span>
     );
@@ -187,7 +187,10 @@ export default function Home() {
 
   return (
     <>
-      <div className="main-frame">
+      <div className={
+        'main-frame' +
+        ((error || results.length > 0) ? ' main-frame-animate-size' : '')
+      }>
         <div className="main-head">
           <div className="main-head-frame2">
             <span className="main-head-frame2-icon">
@@ -260,40 +263,16 @@ export default function Home() {
           <div className="main-result-divider" />
         )}
         {error && (
-          <div className="main-result-section-wrapper">
+          <div className="main-result-section-wrapper fade-in-up">
             <div className="result-section" style={{ border: '1px solid #ff4d4f', background: '#fff6f6' }}>
               <span style={{ color: '#d8000c', fontWeight: 600, fontFamily: 'Inter, Arial, sans-serif' }}>{error}</span>
             </div>
           </div>
         )}
         {results.length > 0 && (
-          <div className="main-result-section-wrapper">
-            {results.map((result, idx) => (
-              <div className="result-section" key={idx}>
-                <span className="result-section-title">{result.title}</span>
-                {result.isICS ? (
-                  <a
-                    className="result-section-btn no-underline"
-                    href={result.link}
-                    download={`${result.title || 'event'}.ics`}
-                  >
-                    {getResultButtonText(result.calendarType)}
-                    {getResultButtonIcon(result.calendarType)}
-                  </a>
-                ) : (
-                  <a
-                    className="result-section-btn no-underline"
-                    href={result.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {getResultButtonText(result.calendarType)}
-                    {getResultButtonIcon(result.calendarType)}
-                  </a>
-                )}
-              </div>
-            ))}
-          </div>
+          <DelayedReveal delayMs={850}>
+            <StaggeredResults results={results} getResultButtonText={getResultButtonText} getResultButtonIcon={getResultButtonIcon} />
+          </DelayedReveal>
         )}
         {/* Add further main content as instructed */}
       </div>
@@ -302,4 +281,70 @@ export default function Home() {
       </div>
     </>
   );
+}
+
+// StaggeredResults component for staggered reveal
+function StaggeredResults({ results, getResultButtonText, getResultButtonIcon }) {
+  const [visibleCount, setVisibleCount] = useState(0);
+  useEffect(() => {
+    if (!results.length) return;
+    setVisibleCount(0);
+    let i = 0;
+    const revealNext = () => {
+      setVisibleCount(v => v + 1);
+      i++;
+      if (i < results.length) {
+        setTimeout(revealNext, 160);
+      }
+    };
+    setTimeout(revealNext, 60); // slight delay before first
+    return () => {};
+  }, [results]);
+  return (
+    <div className="main-result-section-wrapper">
+      {results.map((result, idx) => (
+        <div
+          className="result-section"
+          key={idx}
+          style={{
+            opacity: idx < visibleCount ? 1 : 0,
+            transform: idx < visibleCount ? 'translateY(0)' : 'translateY(24px)',
+            transition: 'opacity 0.5s cubic-bezier(0.4,0,0.2,1), transform 0.5s cubic-bezier(0.4,0,0.2,1)'
+          }}
+        >
+          <span className="result-section-title">{result.title}</span>
+          {result.isICS ? (
+            <a
+              className="result-section-btn no-underline"
+              href={result.link}
+              download={`${result.title || 'event'}.ics`}
+            >
+              {getResultButtonText(result.calendarType)}
+              {getResultButtonIcon(result.calendarType)}
+            </a>
+          ) : (
+            <a
+              className="result-section-btn no-underline"
+              href={result.link}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {getResultButtonText(result.calendarType)}
+              {getResultButtonIcon(result.calendarType)}
+            </a>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// DelayedReveal component for revealing children after a delay
+function DelayedReveal({ delayMs = 800, children }) {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setShow(true), delayMs);
+    return () => clearTimeout(t);
+  }, [delayMs]);
+  return show ? children : null;
 }

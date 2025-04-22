@@ -2,15 +2,20 @@
 
 A modern, privacy-first web app for extracting calendar events from your emails, messages, or notes and generating Google Calendar, Outlook Calendar, and .ics invite links.
 
-## Features
-- Paste any email or event text to extract one or multiple events
-- Supports all event types: meetings, travel, reminders, appointments, parties, bills, and more
-- Generates Google Calendar, Outlook Calendar links, and downloadable .ics files
-- Multi-line, emoji-rich event descriptions for clarity and quick review
-- Beautiful, minimal UI (custom CSS, Figma MCP server reference)
-- No login, no data stored, 100% private
-- Built with Next.js (React) for easy deployment and scalability
+## Recent Updates (2025-04-22)
+- Removed Tailwind CSS, PostCSS, and Autoprefixer (not used in this project).
+- node_modules cleaned and minimized for deployment.
+- Main frame and results section now feature smooth, modern animations.
 
+## Upcoming
+- SEO improvements for better search visibility.
+- Deployment to Vercel/Netlify.
+
+## Features
+- Clean, responsive UI (custom CSS, no Tailwind)
+- AI-powered event extraction (Gemini API)
+- Smooth error/result animations
+- No user data stored
 
 ## Getting Started
 
