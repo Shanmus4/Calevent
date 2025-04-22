@@ -1,21 +1,22 @@
 import './globals.css'
 import "../public/fonts.css";
+import { Analytics } from "@vercel/analytics/react";
 
 export const metadata = {
-  title: 'Calendar Event Generator | AI to Calendar Links',
-  description: 'Create Google, Outlook, or .ics calendar events instantly from any email, message, or text using AI. 100% private, no login required.',
-  keywords: ['calendar event generator', 'ai calendar', 'google calendar link', 'outlook calendar link', 'ics generator', 'add to calendar', 'event parser', 'privacy-first calendar', 'natural language to calendar', 'calendar invite ai'],
+  title: 'calevents | Free AI Calendar Link Generator',
+  description: 'calevents makes it easy to turn any text, email, or message into ready-to-use Google, Outlook, or .ics calendar links. 100% free, private, and no login needed. Perfect for meetings, reminders, and events.',
+  keywords: ['calevents', 'calendar event generator', 'ai calendar', 'google calendar link', 'outlook calendar link', 'ics generator', 'free calendar tool', 'add to calendar', 'event parser', 'privacy-first calendar', 'natural language to calendar', 'calendar invite ai', 'calevents.vercel.app'],
   openGraph: {
-    title: 'Calendar Event Generator',
-    description: 'Extract and create calendar events from any text using AI. Supports Google, Outlook, and .ics. No login, no data stored.',
-    url: 'https://calevent.app',
-    siteName: 'Calendar Event Generator',
+    title: 'calevents | Free AI Calendar Link Generator',
+    description: 'calevents instantly creates Google, Outlook, and .ics calendar links from any text. Free, private, and no sign up required.',
+    url: 'https://calevents.vercel.app',
+    siteName: 'calevents',
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'Calendar Event Generator Screenshot',
+        alt: 'calevents app screenshot',
       }
     ],
     locale: 'en_US',
@@ -23,9 +24,9 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    site: '@calevent_app',
-    title: 'Calendar Event Generator',
-    description: 'Extract and create calendar events from any text using AI. Supports Google, Outlook, and .ics. No login, no data stored.',
+    site: '@calevents_app',
+    title: 'calevents',
+    description: 'calevents instantly creates Google, Outlook, and .ics calendar links from any text. Free, private, and no sign up required.',
     images: ['/og-image.png']
   },
 };
@@ -39,12 +40,15 @@ export default function RootLayout({ children }) {
         <meta name="theme-color" content="#F8F8F8" />
         <meta name="author" content="Shanmu" />
         <meta name="robots" content="index, follow" />
-        <link rel="canonical" href="https://calevent.app" />
+        <link rel="canonical" href="https://calevents.vercel.app" />
         <link rel="icon" type="image/png" href="/favicon.png" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         {/* Open Graph and Twitter tags handled via metadata above for Next.js 13+ */}
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Analytics />
+      </body>
     </html>
   )
 }

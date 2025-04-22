@@ -1,7 +1,7 @@
 # TASK.md
 
 ## Active Tasks
-- [ ] Deploy live (after SEO)
+- [x] Deploy live (after SEO)
 
 ## Completed Tasks
 - [x] Next.js project setup with custom CSS
@@ -32,10 +32,13 @@
 - [x] Checked and minimized node_modules size
 - [x] Finalized animation for main frame and results section
 - [x] SEO optimization: meta tags, Open Graph, accessibility, etc. (2025-04-22 17:13)
+- [x] Finalize all branding, SEO, and manifest updates for 'calevents' (2025-04-22 17:33:49)
+- [x] README, manifest, and UI reflect final project state
+- [x] All features tested and verified for production
+- [x] Project ready for deployment/live usage
 
 ## Discovered During Work
-- [ ] Add more prompt examples for edge-case event types (future)
-- No additional issues found during cleanup
+- None
 
 ## Safety & Privacy Checklist
 - [x] .env and all secrets are gitignored

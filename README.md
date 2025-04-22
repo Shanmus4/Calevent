@@ -1,6 +1,14 @@
-# Calendar Event Generator
+# calevents
 
-A modern, privacy-first web app for extracting calendar events from your emails, messages, or notes and generating Google Calendar, Outlook Calendar, and .ics invite links.
+## Project Status
+
+**calevents is complete and live.**
+
+- All features are implemented and tested.
+- SEO, branding, and manifest are finalized.
+- Ready for users and future enhancements.
+
+calevents makes it easy to turn any text, email, or message into ready-to-use Google, Outlook, or .ics calendar links. 100% free, private, and no login needed. Perfect for meetings, reminders, and events.
 
 ## Recent Updates (2025-04-22)
 - Removed Tailwind CSS, PostCSS, and Autoprefixer (not used in this project).
@@ -11,10 +19,10 @@ A modern, privacy-first web app for extracting calendar events from your emails,
 - Deployment to Vercel/Netlify.
 
 ## Features
-- Clean, responsive UI (custom CSS, no Tailwind)
-- AI-powered event extraction (Gemini API)
-- Smooth error/result animations
-- No user data stored
+- Turn any text into calendar links for Google, Outlook, or .ics
+- Free, private, and no login needed
+- Supports meetings, reminders, and all event types
+- Fast, simple, and mobile-friendly
 
 ## Getting Started
 
@@ -50,6 +58,8 @@ App will be available at [http://localhost:3000](http://localhost:3000)
 - Push your forked repo to GitHub
 - Deploy to [Vercel](https://vercel.com/) or your preferred platform
 - Set the same environment variables in your deployment dashboard
+
+Live: https://calevents.vercel.app
 
 ## File Structure
 - `/app` — Next.js app directory (UI, API routes, favicon)

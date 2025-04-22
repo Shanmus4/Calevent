@@ -198,9 +198,9 @@ export default function Home() {
                 <path d="M19 19H5V7.99997H19M16 0.999969V2.99997H8V0.999969H6V2.99997H5C3.89 2.99997 3 3.88997 3 4.99997V19C3 19.5304 3.21071 20.0391 3.58579 20.4142C3.96086 20.7893 4.46957 21 5 21H19C19.5304 21 20.0391 20.7893 20.4142 20.4142C20.7893 20.0391 21 19.5304 21 19V4.99997C21 4.46954 20.7893 3.96083 20.4142 3.58576C20.0391 3.21068 19.5304 2.99997 19 2.99997H18V0.999969M17 12H12V17H17V12Z" fill="black"/>
               </svg>
             </span>
-            <span className="main-head-frame2-title">calevent</span>
+            <span className="main-head-frame2-title">calevents</span>
           </div>
-          <div className="main-head-subtitle">Create calendar events with one click!</div>
+          <div className="main-head-subtitle">Turn any text into calendar links for Google, Outlook, or .ics. Free, private, and no login needed!</div>
         </div>
         <div className="main-divider" />
         <div className="calendar-type-section">
