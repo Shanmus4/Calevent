@@ -290,6 +290,14 @@ body {
   opacity: 1;
 }
 
+.event-details-support {
+  font-size: 14px;
+  color: #5C5C5C;
+  margin-top: -6px;
+  margin-left: 2px;
+  font-family: "Inter", Arial, sans-serif;
+}
+
 .footer-note {
   color: #5C5C5C;
   font-family: "Inter", Arial, sans-serif;
