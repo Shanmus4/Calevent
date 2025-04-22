@@ -286,13 +286,14 @@ export default function Home() {
           <div className="event-details-label">Event Details</div>
           <textarea
             className="event-details-textarea"
-            placeholder="Provide any necessary details to describe the event or just copy and paste the event mail/message."
+            placeholder="Paste or type your event details here (e.g. 'Football at 8pm', 'Breakfast at 8', or paste a ticket/itinerary)"
             value={inputValue}
-            onChange={e => {
-              setInputValue(e.target.value);
-              if (error) setError("");
-            }}
+            onChange={e => setInputValue(e.target.value)}
+            rows={6}
           />
+          <div style={{ fontSize: '14px', color: '#5C5C5C', marginTop: '4px', marginLeft: '2px' }}>
+            Reload the page to clear all data
+          </div>
         </div>
         <div className="main-btn-container">
           <button
