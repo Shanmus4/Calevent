@@ -19,9 +19,9 @@ export default function Home() {
   const [inputValue, setInputValue] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [globalLoading, setGlobalLoading] = useState(false);
   const dropdownRef = useRef(null);
   const selectorRef = useRef(null);
-  const [userLocation, setUserLocation] = useState(null);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -101,25 +101,9 @@ export default function Home() {
     );
   }
 
-  // On mount, prompt for location and auto-create events if inputValue is present
+  // On mount, do NOT prompt for geolocation, only use browser timezone
   useEffect(() => {
-    // Prompt for geolocation
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          console.log('[calevents] User location:', position.coords.latitude, position.coords.longitude);
-          setUserLocation({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude
-          });
-        },
-        (error) => {
-          console.warn('[calevents] Location permission denied or unavailable:', error);
-        }
-      );
-    } else {
-      console.warn('[calevents] Geolocation not supported by this browser.');
-    }
+    // No geolocation prompt. Only use browser timezone.
     if (inputValue.trim().length > 0) {
       handleCreateEvents();
     }
@@ -130,22 +114,19 @@ export default function Home() {
     if (inputValue.trim().length > 0) {
       setError("");
       setLoading(true);
+      setGlobalLoading(true);
       try {
-        // Get user's local timezone
+        // Get user's local timezone only
         const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        let lat = null, lng = null;
-        if (userLocation) {
-          lat = userLocation.latitude;
-          lng = userLocation.longitude;
-        }
-        console.log('[calevents] Detected timezone:', timezone, 'Lat:', lat, 'Lng:', lng);
+        // Remove all geolocation usage
+        console.log('[calevents] Detected timezone:', timezone);
         if (!timezone) {
           alert('Could not detect your timezone. Please check your device settings or try a different browser.');
         }
         const res = await fetch("/api/parse", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: inputValue, timezone, latitude: lat, longitude: lng })
+          body: JSON.stringify({ text: inputValue, timezone })
         });
         const data = await res.json();
         console.log('[calevents] AI backend returned:', data.events);
@@ -153,6 +134,7 @@ export default function Home() {
           setResults([]);
           setError(data.error);
           setLoading(false);
+          setGlobalLoading(false);
           return;
         }
         // data.events is an array of event JSONs from AI
@@ -182,6 +164,7 @@ export default function Home() {
         console.error('[calevents] Error in handleCreateEvents:', e);
       } finally {
         setLoading(false);
+        setGlobalLoading(false);
       }
     } else {
       setError("Event details not provided!");
@@ -231,8 +214,11 @@ export default function Home() {
     <>
       <div className={
         'main-frame' +
-        ((error || results.length > 0) ? ' main-frame-animate-size' : '')
-      }>
+        ((error || results.length > 0) ? ' main-frame-animate-size' : '') +
+        (globalLoading ? ' global-loading' : '')
+      }
+      style={{ }}
+      >
         <div className="main-head">
           <div className="main-head-frame2">
             <span className="main-head-frame2-icon">
@@ -285,17 +271,20 @@ export default function Home() {
           <div className="event-details-label">Event Details</div>
           <textarea
             className="event-details-textarea"
-            placeholder="Type or paste your event details here (e.g. 'Football at 8 PM', or paste a ticket/booking details/itinerary)"
+            placeholder="Type/paste your event details here or upload a file below."
             value={inputValue}
             onChange={e => setInputValue(e.target.value)}
             rows={6}
           />
-          <div className="event-details-support">
-            Reload the page to clear all data
+          <div className="event-details-row" style={{ display: 'flex', flexDirection: 'column', gap: '4px', margin: 0, padding: 0 }}>
             <FileDropZone
               onFileParsed={text => setInputValue(text)}
-              loading={loading}
+              loading={loading || globalLoading}
+              clearInput={() => setInputValue("")}
             />
+            {inputValue.trim() && (
+              <div className="event-details-support">Reload the page to clear all data</div>
+            )}
           </div>
         </div>
         <div className="main-btn-container">
@@ -303,8 +292,10 @@ export default function Home() {
             className="main-action-btn"
             onClick={handleCreateEvents}
             disabled={loading}
+            style={globalLoading ? { opacity: 1 } : {}}
           >
-            {loading ? "Creating..." : "Create Events"}
+            {(loading || globalLoading) && <span className="loading-spinner" style={{ marginRight: 8 }} />}
+            {loading || globalLoading ? "Creating..." : "Create Events"}
           </button>
         </div>
         {(error || results.length > 0) && (
@@ -324,6 +315,20 @@ export default function Home() {
         )}
         {/* Add further main content as instructed */}
       </div>
+      {globalLoading && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(255,255,255,0.5)',
+          zIndex: 1000,
+          pointerEvents: 'auto',
+        }}
+        aria-hidden="true"
+        />
+      )}
       <div className="footer-note">
         Built by <a href="https://shanmus4.framer.website/" className="footer-note-link" target="_blank" rel="noopener noreferrer"><b>Shanmu</b></a>. Source Code available on <a href="https://github.com/Shanmus4/Calevent" className="footer-note-link" target="_blank" rel="noopener noreferrer"><b>Github</b></a>.
       </div>
@@ -348,7 +353,24 @@ function StaggeredResults({ results, getResultButtonText, getResultButtonIcon })
     setTimeout(revealNext, 60); // slight delay before first
     return () => {};
   }, [results]);
-  // Reason: For .ics results, force file download by setting download attribute to filename
+  // Reason: For .ics results, trigger download via JS for iOS compatibility
+  const handleICSDownload = (e, result) => {
+    e.preventDefault();
+    fetch(result.link)
+      .then(resp => resp.blob())
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = result.title ? `${result.title.replace(/[^a-zA-Z0-9_-]+/g, '_')}.ics` : 'event.ics';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+        }, 150);
+      });
+  };
   return (
     <div className="main-result-section-wrapper">
       {results.slice(0, visibleCount).map((result, idx) => (
@@ -358,7 +380,7 @@ function StaggeredResults({ results, getResultButtonText, getResultButtonIcon })
             <a
               className="result-section-btn no-underline"
               href={result.link}
-              download={result.title ? `${result.title.replace(/[^a-zA-Z0-9_-]+/g, '_')}.ics` : 'event.ics'}
+              onClick={e => handleICSDownload(e, result)}
             >
               {getResultButtonText(result.calendarType)}
               {getResultButtonIcon(result.calendarType)}

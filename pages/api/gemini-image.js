@@ -5,31 +5,26 @@ import mime from 'mime-types';
 
 export const config = { api: { bodyParser: false } };
 
-function guessImageMimeFromBuffer(filepath) {
-  // Basic magic numbers for JPEG, PNG, GIF, WEBP
+// Helper: Guess mimetype from buffer (magic numbers)
+function guessImageMimeFromBufferFromBuffer(buffer) {
+  if (!Buffer.isBuffer(buffer)) return undefined;
   const sigs = [
     { magic: [0xFF, 0xD8, 0xFF], mime: 'image/jpeg' },
     { magic: [0x89, 0x50, 0x4E, 0x47], mime: 'image/png' },
     { magic: [0x47, 0x49, 0x46, 0x38], mime: 'image/gif' },
     { magic: [0x52, 0x49, 0x46, 0x46], mime: 'image/webp', offset: 8, check: [0x57, 0x45, 0x42, 0x50] },
   ];
-  try {
-    const fd = fs.openSync(filepath, 'r');
-    const buf = Buffer.alloc(16);
-    fs.readSync(fd, buf, 0, 16, 0);
-    fs.closeSync(fd);
-    for (const sig of sigs) {
-      if (sig.offset) {
-        if (buf.slice(0, 4).equals(Buffer.from(sig.magic)) && buf.slice(sig.offset, sig.offset + 4).equals(Buffer.from(sig.check))) {
-          return sig.mime;
-        }
-      } else {
-        if (buf.slice(0, sig.magic.length).equals(Buffer.from(sig.magic))) {
-          return sig.mime;
-        }
+  for (const sig of sigs) {
+    if (sig.offset) {
+      if (buffer.slice(0, 4).equals(Buffer.from(sig.magic)) && buffer.slice(sig.offset, sig.offset + 4).equals(Buffer.from(sig.check))) {
+        return sig.mime;
+      }
+    } else {
+      if (buffer.slice(0, sig.magic.length).equals(Buffer.from(sig.magic))) {
+        return sig.mime;
       }
     }
-  } catch (e) {}
+  }
   return undefined;
 }
 
@@ -50,7 +45,21 @@ export default async function handler(req, res) {
   }
   try {
     const formidable = (await import('formidable')).default;
-    const form = formidable({ multiples: false });
+    // --- In-memory file buffer collection for Vercel compatibility ---
+    const form = formidable({
+      multiples: false,
+      fileWriteStreamHandler: () => {
+        // Collect file data in memory
+        const chunks = [];
+        const stream = new (require('stream').Writable)();
+        stream._write = (chunk, encoding, callback) => {
+          chunks.push(chunk);
+          callback();
+        };
+        stream.getBuffer = () => Buffer.concat(chunks);
+        return stream;
+      },
+    });
     form.parse(req, async (err, fields, files) => {
       if (err) {
         res.status(500).json({ error: 'Failed to parse form', details: err.message });
@@ -62,43 +71,33 @@ export default async function handler(req, res) {
         res.status(400).json({ error: 'No file uploaded' });
         return;
       }
+      // Get the in-memory buffer
+      let imageBuffer = file._writeStream && file._writeStream.getBuffer ? file._writeStream.getBuffer() : null;
+      if (!imageBuffer) {
+        res.status(500).json({ error: 'Failed to read uploaded file buffer' });
+        return;
+      }
       // Infer mimetype if missing or generic
       let mimetype = file.mimetype;
       let debugInfo = {
         originalFilename: file.originalFilename,
-        filepath: file.filepath
+        bufferLength: imageBuffer.length
       };
       if (!mimetype || mimetype === 'application/octet-stream') {
-        // Try originalFilename, then filepath
         let ext = '';
         if (file.originalFilename) ext = path.extname(file.originalFilename);
-        if ((!ext || ext === '') && file.filepath) ext = path.extname(file.filepath);
         mimetype = mime.lookup(ext) || undefined;
         debugInfo.inferredExt = ext;
         debugInfo.inferredMime = mimetype;
-        // If still not found, try to guess from magic number
         if (!mimetype) {
-          mimetype = guessImageMimeFromBuffer(file.filepath);
+          // fallback: guess from first bytes
+          mimetype = guessImageMimeFromBufferFromBuffer(imageBuffer);
           debugInfo.magicMime = mimetype;
         }
       }
       console.log('[Gemini Debug]', debugInfo);
-      try {
-        await fs.promises.access(file.filepath, fs.constants.R_OK);
-      } catch (accessErr) {
-        res.status(500).json({ error: 'File is not readable', details: accessErr.message, filepath: file.filepath });
-        return;
-      }
       if (!mimetype) {
         res.status(500).json({ error: 'File mimetype missing or could not be inferred', debugInfo });
-        return;
-      }
-      // Read image as buffer and convert to base64 for Gemini Vision API
-      let imageBuffer;
-      try {
-        imageBuffer = fs.readFileSync(file.filepath);
-      } catch (e) {
-        res.status(500).json({ error: 'Failed to read image file', details: e.message });
         return;
       }
       // Gemini Vision expects inlineData with base64 data
@@ -141,7 +140,6 @@ export default async function handler(req, res) {
         res.status(500).json({ error: 'Error streaming Gemini Vision response', details: streamErr.message });
         return;
       }
-      fs.unlink(file.filepath, () => {});
       if (text) {
         res.status(200).json({ text });
       } else {

@@ -45,7 +45,7 @@ __pycache__/
 *.db
 
 # Ignore local test files
-/tests/
+#/tests/
 
 # Ignore anything user-specific
 *.local
