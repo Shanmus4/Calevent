@@ -24,10 +24,17 @@ calevents makes it easy to turn any text, email, or message into ready-to-use Go
 - Free, private, and no login needed
 - Supports meetings, reminders, and all event types
 - Fast, simple, and mobile-friendly
-- **Drag-and-drop image upload with Gemini Vision OCR (image-to-text extraction)**
-- **Robust MIME type inference for uploads (PDF, DOCX, images, etc.)**
-- **ICS file download always triggers file save, not browser open**
-- **No user data stored, no analytics, all secrets in .env.local**
+- Drag-and-drop image upload with Gemini Vision OCR (image-to-text extraction)
+- Robust MIME type inference for uploads (PDF, DOCX, images, etc.)
+- ICS file download always triggers file save, not browser open
+- No user data stored, no analytics, all secrets in .env.local
+- Multi-event extraction from a single input
+- Multi-line, emoji-rich event descriptions (with extra spacing and all important details)
+- Handles ambiguous times, relative dates, and timezones (always uses user's browser timezone)
+- SEO best practices: meta tags, Open Graph, Twitter Card, canonical, sitemap.xml, robots.txt, JSON-LD structured data
+- Accessibility and mobile responsive UI
+- Figma-based pixel-perfect design
+- Full security/privacy audit (see below)
 
 ## Security & Privacy
 - All environment variables and API keys are stored in `.env.local` (never committed)
@@ -35,9 +42,9 @@ calevents makes it easy to turn any text, email, or message into ready-to-use Go
 - All event extraction and image parsing is done in-memory and deleted after use
 - Calendar links and .ics files are generated client-side for privacy
 - No analytics or third-party tracking
-- **No geolocation, camera, or microphone permissions are ever requested**
-- **Timezone is detected only via browser settings (Intl API); no location or device permissions needed**
-- **Safe for public repo: no secrets, no user data, no analytics, all dependencies up to date**
+- No geolocation, camera, or microphone permissions are ever requested
+- Timezone is detected only via browser settings (Intl API); no location or device permissions needed
+- Safe for public repo: no secrets, no user data, no analytics, all dependencies up to date
 
 ## Final Security & Privacy Audit (2025-04-23)
 - All secrets, API keys, and sensitive config are stored in `.env.local` (never committed)
@@ -54,6 +61,10 @@ calevents makes it easy to turn any text, email, or message into ready-to-use Go
 - All UI/UX, API, and core functionality are implemented and tested
 - See `PLANNING.md` and `TASK.md` for full checklist
 - Project is ready for public use and open source distribution
+
+## SEO & Discoverability
+- robots.txt and sitemap.xml for search engine crawling
+- JSON-LD structured data for rich search results
 
 ## Getting Started
 
@@ -114,10 +125,6 @@ Live: https://calevents.vercel.app
 - Minor code tweaks were made to achieve the desired output and match Figma reference
 - Error and empty state handling for user feedback
 - Calendar icon favicon for a professional look
-
-## SEO & Metadata
-- Full SEO metadata added: title, description, keywords, Open Graph, Twitter Card, canonical, favicon, theme color, accessibility tags.
-- Project is privacy-first, AI-powered, supports Google/Outlook/ICS, and requires no login.
 
 ## Contributing & Feedback
 If you have suggestions, bug reports, or want to contribute:

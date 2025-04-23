@@ -40,10 +40,12 @@
 - [x] Robust MIME type inference and error handling for uploads (2025-04-22 21:30)
 - [x] ICS download always triggers file download, not browser open (2025-04-22 21:34)
 - [x] Security/privacy audit: safe for public repo, no secrets, no user data, no analytics, no geolocation/camera/microphone permissions requested, only browser timezone used (2025-04-23 00:58:31)
+- [x] Add structured data (JSON-LD) and sitemap.xml for advanced SEO (optional/future) (2025-04-23 04:52)
+- [x] Debug Gemini event extraction: log raw Gemini API output for simple inputs, verify if model or backend parsing is failing, and fix accordingly (2025-04-23 04:52)
 
 ## Completed Tasks (Final)
 - All UI, API, and event extraction requirements implemented
-- Gemini prompt and backend parsing robustified for reliability
+- Gemini prompt and backend parsing robustified for reliability (multi-event, emoji-rich, all-important-details, extra spacing)
 - Google Calendar, Outlook, and ICS link/file generation finalized
 - Drag-and-drop file/image upload with Gemini Vision OCR
 - Robust MIME type inference for uploads (PDF, DOCX, images, etc.)
@@ -51,13 +53,13 @@
 - Figma-based UI, accessibility, and mobile responsiveness finalized
 - All tests passing; project ready for deployment/live use
 - Security/privacy audit: safe for public repo, no secrets, no user data, no analytics, no geolocation/camera/microphone permissions requested, only browser timezone used (2025-04-23)
+- SEO best practices: meta tags, Open Graph, Twitter Card, canonical, sitemap.xml, robots.txt, JSON-LD structured data
 
 ## Discovered During Work
 - None
 
 ## Active Tasks
-- [ ] Add structured data (JSON-LD) and sitemap.xml for advanced SEO (optional/future)
-- [ ] Debug Gemini event extraction: log raw Gemini API output for simple inputs, verify if model or backend parsing is failing, and fix accordingly (added 2025-04-23 04:52)
+- [ ] None (Project Complete)
 
 ## Safety & Privacy Checklist (Final)
 - [x] .env.local and all secrets are gitignored

@@ -45,6 +45,10 @@ export default function RootLayout({ children }) {
         <link rel="icon" type="image/png" href="/favicon.png" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         {/* Open Graph and Twitter tags handled via metadata above for Next.js 13+ */}
+        {/* Structured Data for SEO */}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{
+          __html: JSON.stringify(require('../public/seo.jsonld'))
+        }} />
       </head>
       <body>
         {children}

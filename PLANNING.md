@@ -41,7 +41,9 @@ Build a privacy-first web app that lets users extract calendar events from any p
 - [x] Next.js project setup with custom CSS
 - [x] API route for event extraction
 - [x] Google Calendar, Outlook, and .ics link generation
-- [x] Multi-line, emoji-rich event descriptions
+- [x] Multi-line, emoji-rich event descriptions (with extra spacing, all important details)
+- [x] Multi-event extraction from a single input
+- [x] Handles ambiguous times, relative dates, and timezones (uses browser timezone)
 - [x] Privacy-first: no data stored, no login
 - [x] Responsive, minimal UI
 - [x] Environment variable/config documentation
@@ -51,7 +53,7 @@ Build a privacy-first web app that lets users extract calendar events from any p
 - [x] Error state UI for missing event details
 - [x] Favicon (calendar icon)
 - [x] Minor code tweaks for design accuracy
-- [x] SEO optimization for better discoverability (meta tags, Open Graph, accessibility, etc.)
+- [x] SEO optimization: meta tags, Open Graph, accessibility, sitemap.xml, robots.txt, JSON-LD structured data
 - [x] Gemini Vision API integration for image-to-text extraction via drag-and-drop/file upload
 - [x] MIME type inference and robust error handling for uploads
 - [x] ICS download: always triggers file download, not browser open
@@ -59,13 +61,22 @@ Build a privacy-first web app that lets users extract calendar events from any p
 
 ## Safety & Privacy
 - All environment variables and secrets are stored in `.env.local` and never committed.
-- No user data is stored or tracked anywhere in the app.
-- All event extraction happens via the Gemini API and is not retained.
-- All calendar links are generated client-side for maximum privacy.
-- ICS downloads use Content-Disposition: attachment and frontend download attribute to force download.
-- Image uploads are processed in-memory and deleted after use.
-- **No geolocation, camera, or microphone permissions are ever requested.**
-- **Timezone is detected only via browser settings (Intl API); no location/device permissions needed.**
+- No user data is stored, logged, or tracked.
+- All event extraction and file parsing is in-memory and ephemeral.
+- All calendar links and .ics files are generated client-side for privacy.
+- No analytics or third-party tracking.
+- No geolocation, camera, or microphone permissions are ever requested.
+- Timezone is detected only via browser settings (Intl API); no location or device permissions needed.
+- All dependencies reviewed for safety and up-to-date.
+
+## Stretch Goals (Optional/Future)
+- [ ] Additional UI polish, accessibility, and mobile enhancements
+- [ ] Fallback favicon formats
+- [ ] Loading state for event parsing
+
+## Final Status
+- All core and stretch features (except optional) are complete and tested.
+- Project ready for public/open source use.
 
 ## Completed Project Summary (2025-04-23)
 
@@ -92,13 +103,6 @@ All core requirements, privacy/security goals, and feature milestones have been 
 - Figma-based UI, accessibility, and mobile responsiveness finalized
 - Final README, manifest, and documentation polish
 - All tests passing; project ready for deployment/live use
-
-### Stretch Goals (Optional/Future)
-- [ ] Structured data (JSON-LD) & sitemap.xml for advanced SEO
-- [ ] Additional UI polish, accessibility, and mobile enhancements
-- [ ] Fallback favicon formats
-- [ ] Loading state for event parsing
-- [ ] Keyboard navigation for dropdown
 
 ## Project Status: COMPLETE
 
