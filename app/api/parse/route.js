@@ -18,9 +18,15 @@ function generateGoogleCalendarLink(event) {
   return `${base}&${params}`
 }
 
+// Helper: Format date as UTC for ICS (YYYYMMDDTHHMMSSZ)
+function formatDateUTCforICS(dateStr) {
+  const date = new Date(dateStr);
+  return date.toISOString().replace(/[-:]/g, '').replace('.000Z', 'Z');
+}
+
 // Helper: Generate .ics file content
 function generateICS(event) {
-  return `BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:${event.title}\nDESCRIPTION:${event.description}\nDTSTART:${formatDateUTC(event.start)}\nDTEND:${formatDateUTC(event.end)}\nLOCATION:${event.location || ''}\nEND:VEVENT\nEND:VCALENDAR`;
+  return `BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:${event.title}\nDESCRIPTION:${event.description}\nDTSTART:${formatDateUTCforICS(event.start)}\nDTEND:${formatDateUTCforICS(event.end)}\nLOCATION:${event.location || ''}\nEND:VEVENT\nEND:VCALENDAR`;
 }
 
 // Helper: Format date as local time for Outlook Calendar (YYYY-MM-DDTHH:mm:ss)
