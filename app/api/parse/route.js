@@ -23,6 +23,30 @@ function generateICS(event) {
   return `BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:${event.title}\nDESCRIPTION:${event.description}\nDTSTART:${formatDateUTC(event.start)}\nDTEND:${formatDateUTC(event.end)}\nLOCATION:${event.location || ''}\nEND:VEVENT\nEND:VCALENDAR`;
 }
 
+// Helper: Format date as local time for Outlook Calendar (YYYY-MM-DDTHH:mm:ss)
+function formatDateLocalForOutlook(dateStr) {
+  const date = new Date(dateStr);
+  return date.getFullYear() +
+    '-' + String(date.getMonth() + 1).padStart(2, '0') +
+    '-' + String(date.getDate()).padStart(2, '0') +
+    'T' + String(date.getHours()).padStart(2, '0') +
+    ':' + String(date.getMinutes()).padStart(2, '0') +
+    ':' + String(date.getSeconds()).padStart(2, '0');
+}
+
+// Helper: Generate Outlook Calendar link (local time, no timezone)
+function generateOutlookCalendarLinkLocal(event) {
+  const base = 'https://outlook.live.com/calendar/0/deeplink/compose?path=/calendar/action/compose&rru=addevent';
+  const params = [
+    `subject=${encodeURIComponent(event.title)}`,
+    `body=${encodeURIComponent(event.description)}`,
+    `startdt=${encodeURIComponent(formatDateLocalForOutlook(event.start))}`,
+    `enddt=${encodeURIComponent(formatDateLocalForOutlook(event.end))}`,
+    `location=${encodeURIComponent(event.location || '')}`
+  ].join('&');
+  return `${base}&${params}`;
+}
+
 // Helper: Generate Outlook Calendar link
 function generateOutlookCalendarLink(event) {
   const base = 'https://outlook.live.com/calendar/0/deeplink/compose?path=/calendar/action/compose&rru=addevent';
@@ -234,6 +258,7 @@ IMPORTANT: Output ONLY a valid JSON array of event objects. DO NOT include any e
         ...event,
         google_link: generateGoogleCalendarLink(event),
         outlook_link: generateOutlookCalendarLink(event),
+        outlook_link_local: generateOutlookCalendarLinkLocal(event),
         ics_link: `/api/ics/${encodeURIComponent(event.title || 'event')}?${icsParams}`
       };
     });

@@ -144,7 +144,8 @@ export default function Home() {
             // Google Calendar link generation
             link = event.google_link || generateGoogleCalendarLink(event);
           } else if (calendarType === "outlook") {
-            link = event.outlook_link || generateOutlookCalendarLink(event);
+            // Prefer backend-generated local time Outlook link if available
+            link = event.outlook_link_local || event.outlook_link || generateOutlookCalendarLink(event);
           } else if (calendarType === "ical") {
             // Use server-based .ics link for Apple/iCalendar
             link = event.ics_link;
