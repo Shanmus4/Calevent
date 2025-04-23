@@ -58,26 +58,32 @@ USER TIMEZONE: ${tz}
 ---
 
 Your job:
-- Read the user's input (see USER INPUT at the end)
-- Understand the context and event type (e.g., flight, hotel, meeting, appointment, class, delivery, reminder, etc.)
-- Extract every possible event the user might want to add to their calendar
-- Output a strict JSON array of event objects (see Output Format)
+- Read the user's input (see USER INPUT at the end).
+- **It is VERY IMPORTANT that you carefully extract and include EVERY piece of important information from the input in the event description.**
+- Important information includes (but is not limited to): reservation codes, ticket numbers, addresses, phone numbers, participants, agenda items, support contacts, confirmation numbers, and any unique details present in the input.
+- For each event, the description must list ALL such details, each on a separate line, each line starting with a relevant emoji and separated by a blank line (double newline).
+- Output a strict JSON array of event objects (see Output Format).
 
 ---
 
 Output Format (MUST work on iOS/Apple Calendar, Google Calendar, Outlook):
-{
-  "title": "string, concise, context-specific",
-  "description": "string, thorough, organized, with emoji and all details (one per line, blank lines between sections)",
-  "start": "ISO 8601 datetime string WITH timezone offset (e.g. 2025-04-24T14:00:00+05:30)",
-  "end": "ISO 8601 datetime string WITH timezone offset (if missing, set end = start + 1 hour)",
-  "location": "string, as detailed as possible",
-  "notification": "ISO 8601 datetime or relative offset (e.g., '1 hour before start')"
-}
+[
+  {
+    "title": "string, concise, context-specific",
+    "description": "string, with ALL important details from the input. Each line must start with a relevant emoji and be separated by a blank line (double newline).",
+    "start": "ISO 8601 datetime string WITH timezone offset (e.g. 2025-04-24T14:00:00+05:30)",
+    "end": "ISO 8601 datetime string WITH timezone offset (if missing, set end = start + 1 hour)",
+    "location": "string, as detailed as possible"
+  }
+]
 
 ---
 
 IMPORTANT RULES:
+- **It is CRUCIAL that the description field contains ALL important information from the input, not just the event summary.**
+- Important information includes: reservation codes, ticket numbers, addresses, phone numbers, participants, agenda, support contacts, confirmation numbers, and any other unique or relevant details.
+- Each line in the description must begin with a relevant emoji (e.g., 📅, 🏠, ✈️, 👤, 🕒, etc.)
+- Each line in the description must be separated by a blank line (double newline, for extra spacing between lines).
 - Always use the CURRENT DATETIME and USER TIMEZONE above as the reference for interpreting relative dates like 'tomorrow', 'next Monday', etc.
 - If the user enters a date in the past (e.g., yesterday), create the event for the most recent occurrence, but warn if the event is in the past.
 - If the user uses words like 'at 8', 'at 9', 'breakfast at 8', assume AM for breakfast/morning events, PM for evening/late events (use context and common sense).
@@ -85,13 +91,12 @@ IMPORTANT RULES:
 - Support expressions like '10 days from now', 'tomorrow', '2 days from yesterday', and resolve them using CURRENT DATETIME.
 - Never guess the year/month/day; always use the current date as the base for all relative or incomplete dates.
 - If any info is missing, fill with sensible defaults (e.g., end = start + 1 hour, location = "(none)").
-- Output ONLY the JSON array, no markdown, explanation, or extra text.
+- Output ONLY a valid JSON array of event objects. DO NOT include any explanations, markdown, or extra text. Your response must be parseable as JSON.
 - For iOS compatibility, all datetime strings must include timezone offset (never just 'Z').
 - For multi-day bookings (e.g., hotels), create two events: one for check-in, one for check-out.
 - For journeys (bus, train, flight): a single event from start to end time is appropriate.
 - For bookings with check-in/check-out: separate events for each.
 - For recurring events, create only the first instance unless recurrence is explicitly requested.
-- Add a notification field with the ideal reminder time for that event type (e.g., flights: 3 hours before, hotel check-in: 30 min before, meetings: 1 hour before, movies: 1 hour before, exercise: 5 min before, etc.)
 - If the input describes multiple events, extract each one separately.
 - NEVER include explanations, markdown, or extra text—output ONLY the JSON array.
 
@@ -105,8 +110,7 @@ EDGE CASES & EXAMPLES:
     "description": "🍽️ Lunch with team\n\n👤 Attendees: Akshay, Priya\n\n📍 Cafe Coffee Day, Mumbai",
     "start": "2025-04-24T14:00:00+05:30",
     "end": "2025-04-24T15:00:00+05:30",
-    "location": "Cafe Coffee Day, Mumbai",
-    "notification": "1 hour before start"
+    "location": "Cafe Coffee Day, Mumbai"
   }
 ]
 
@@ -117,16 +121,14 @@ EDGE CASES & EXAMPLES:
     "description": "🏷️ Reservation Code: HM8PJKC9MZ\n\n👤 Guest: Akshay\n\n📍 Address: Taj Palace, Mumbai\n\n📞 Support: 1800-123-4567",
     "start": "2025-04-27T14:00:00+05:30",
     "end": "2025-04-27T15:00:00+05:30",
-    "location": "Taj Palace, Mumbai",
-    "notification": "30 minutes before start"
+    "location": "Taj Palace, Mumbai"
   },
   {
     "title": "Hotel Check-out: Taj Palace",
     "description": "🏷️ Reservation Code: HM8PJKC9MZ\n\n👤 Guest: Akshay\n\n📍 Address: Taj Palace, Mumbai\n\n📞 Support: 1800-123-4567",
     "start": "2025-04-29T11:00:00+05:30",
     "end": "2025-04-29T12:00:00+05:30",
-    "location": "Taj Palace, Mumbai",
-    "notification": "1 hour before start"
+    "location": "Taj Palace, Mumbai"
   }
 ]
 
@@ -134,11 +136,10 @@ EDGE CASES & EXAMPLES:
 [
   {
     "title": "Flight: Mumbai to Goa",
-    "description": "✈️ Flight: Indigo 6E-1234\n\n🛫 Departure: Mumbai Airport\n\n🛬 Arrival: Goa Airport\n\n🧑 Passenger: Akshay\n\n🏷️ Ticket: IND123456",
+    "description": "✈️ Flight: Indigo 6E-1234\n\n🛫 Departure: Mumbai Airport\n\n🛬 Arrival: Goa Airport\n\n👤 Passenger: Akshay\n\n🏷️ Ticket: IND123456",
     "start": "2025-04-27T08:00:00+05:30",
     "end": "2025-04-27T10:00:00+05:30",
-    "location": "Mumbai Airport to Goa Airport",
-    "notification": "3 hours before start"
+    "location": "Mumbai Airport to Goa Airport"
   }
 ]
 
@@ -149,15 +150,16 @@ EDGE CASES & EXAMPLES:
     "description": "🎬 Movie: Avengers Endgame\n\n📍 PVR Cinemas, Mumbai\n\n🕒 Showtime: 7:00 PM",
     "start": "2025-04-24T19:00:00+05:30",
     "end": "2025-04-24T22:00:00+05:30",
-    "location": "PVR Cinemas, Mumbai",
-    "notification": "1 hour before start"
+    "location": "PVR Cinemas, Mumbai"
   }
 ]
 
 ---
 
 USER INPUT:
-${text.trim()}`;
+${text.trim()}
+
+IMPORTANT: Output ONLY a valid JSON array of event objects. DO NOT include any explanations, markdown, or extra text. Your response must be parseable as JSON.`;
 
   // Call Gemini API
   const response = await fetch(
@@ -181,28 +183,23 @@ ${text.trim()}`;
   const gemini = await response.json()
   let jsonString = ''
   try {
-    jsonString = gemini.candidates?.[0]?.content?.parts?.[0]?.text || ''
-    console.log('[calevents][DEBUG] Raw Gemini output:', JSON.stringify(jsonString))
-    // Remove markdown, explanations, etc.
-    // Try to extract a JSON array or object robustly
-    let match = jsonString.match(/\[.*\]/s);
-    if (!match) {
-      // Try to match a JSON object if array not found
-      match = jsonString.match(/\{.*\}/s);
+    jsonString = gemini.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    console.log('[calevents][DEBUG] Raw Gemini output:', JSON.stringify(jsonString));
+    // Remove Markdown code fences if present
+    jsonString = jsonString.replace(/```json|```/gi, '').trim();
+    // Sanitize: Replace unescaped control characters only inside string values
+    jsonString = jsonString.replace(/"((?:[^"\\]|\\.)*)"/g, (match, p1) => {
+      const fixed = p1.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t');
+      return `"${fixed}"`;
+    });
+    let events;
+    try {
+      // Try direct JSON parse first
+      events = JSON.parse(jsonString);
+    } catch (e) {
+      console.error('[calevents][ERROR] JSON parse failed:', e, 'Input:', jsonString);
+      return NextResponse.json({ events: [], error: `Parse error: ${e.message}`, gemini_raw: jsonString }, { status: 200 });
     }
-    if (!match) {
-      // If no JSON found, check for common Gemini error outputs
-      if (jsonString.trim().toLowerCase().includes('no events extracted')) {
-        return NextResponse.json({ events: [], error: 'No events extracted from your input', gemini_raw: jsonString }, { status: 200 })
-      }
-      // If Gemini output is empty or just whitespace
-      if (!jsonString.trim()) {
-        return NextResponse.json({ events: [], error: 'Gemini returned no output', gemini_raw: jsonString }, { status: 200 })
-      }
-      // Fallback: return raw output for debugging
-      return NextResponse.json({ events: [], error: 'Unrecognized Gemini output format', gemini_raw: jsonString }, { status: 200 })
-    }
-    let events = JSON.parse(match[0]);
     // If it's a single event object, wrap in array
     if (!Array.isArray(events)) {
       events = [events];
