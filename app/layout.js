@@ -45,10 +45,31 @@ export default function RootLayout({ children }) {
         <link rel="icon" type="image/png" href="/favicon.png" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         {/* Open Graph and Twitter tags handled via metadata above for Next.js 13+ */}
-        {/* Structured Data for SEO */}
-        <script type="application/ld+json" dangerouslySetInnerHTML={{
-          __html: JSON.stringify(require('../public/seo.jsonld'))
-        }} />
+        {/* Structured Data for SEO (inlined) */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebApplication",
+              "name": "calevents | Free AI Calendar Link Generator",
+              "url": "https://calevents.vercel.app/",
+              "description": "calevents makes it easy to turn any text, email, or message into ready-to-use Google, Outlook, or .ics calendar links. 100% free, private, and no login needed. Perfect for meetings, reminders, and events.",
+              "applicationCategory": "ProductivityApplication",
+              "operatingSystem": "All",
+              "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+              },
+              "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": "5",
+                "reviewCount": "100"
+              }
+            })
+          }}
+        />
       </head>
       <body>
         {children}
