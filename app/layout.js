@@ -6,7 +6,13 @@ export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
   title: 'calevents | Free AI Calendar Link Generator',
   description: 'calevents makes it easy to turn any text, email, or message into ready-to-use Google, Outlook, or .ics calendar links. 100% free, private, and no login needed. Perfect for meetings, reminders, and events.',
-  keywords: ['calevents', 'calendar event generator', 'ai calendar', 'google calendar link', 'outlook calendar link', 'ics generator', 'free calendar tool', 'add to calendar', 'event parser', 'privacy-first calendar', 'natural language to calendar', 'calendar invite ai', 'calevents.vercel.app'],
+  keywords: [
+    'calevents', 'calendar event generator', 'ai calendar', 'google calendar link generator',
+    'outlook calendar link generator', 'ics file generator', 'free calendar tool', 'add to calendar from text',
+    'event parser ai', 'privacy-first calendar app', 'natural language processing calendar',
+    'calendar invite creator', 'text to event converter', 'online calendar tool', 'no login calendar',
+    'secure calendar link', 'meeting scheduler ai', 'travel itinerary calendar', 'event extraction tool'
+  ],
   openGraph: {
     title: 'calevents | Free AI Calendar Link Generator',
     description: 'calevents instantly creates Google, Outlook, and .ics calendar links from any text. Free, private, and no sign up required.',
