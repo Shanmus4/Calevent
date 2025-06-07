@@ -34,7 +34,7 @@ export const metadata = {
     site: '@calevents_app',
     title: 'calevents',
     description: 'calevents instantly creates Google, Outlook, and .ics calendar links from any text. Free, private, and no sign up required.',
-    images: ['/og-image.png']
+    images: [`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/og-image.png`]
   },
 };
 
@@ -50,6 +50,7 @@ export default function RootLayout({ children }) {
         <link rel="canonical" href="https://calevents.vercel.app" />
         <link rel="icon" type="image/png" href="/favicon.png" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <meta property="og:image" content={`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/og-image.png`} />
         {/* Open Graph and Twitter tags handled via metadata above for Next.js 13+ */}
         {/* Structured Data for SEO (inlined) */}
         <script
