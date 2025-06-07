@@ -20,7 +20,7 @@ export const metadata = {
     siteName: 'calevents',
     images: [
       {
-        url: '/og-image.png',
+        url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/og-image.png`,
         width: 1200,
         height: 630,
         alt: 'calevents app screenshot',
