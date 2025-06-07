@@ -1,6 +1,7 @@
 import './globals.css'
 import "../public/fonts.css";
 import { Analytics } from "@vercel/analytics/react";
+import opengraphImage from '../public/opengraph-image.png';
 
 export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
@@ -20,9 +21,9 @@ export const metadata = {
     siteName: 'calevents',
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/opengraph-image.png`,
-        width: 1200,
-        height: 630,
+        url: opengraphImage.src,
+        width: opengraphImage.width,
+        height: opengraphImage.height,
         alt: 'calevents app screenshot',
       }
     ],
@@ -34,7 +35,7 @@ export const metadata = {
     site: '@calevents_app',
     title: 'calevents',
     description: 'calevents instantly creates Google, Outlook, and .ics calendar links from any text. Free, private, and no sign up required.',
-    images: [`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/opengraph-image.png`]
+    images: [opengraphImage.src]
   },
 };
 
@@ -50,7 +51,6 @@ export default function RootLayout({ children }) {
         <link rel="canonical" href="https://calevents.vercel.app" />
         <link rel="icon" type="image/png" href="/favicon.png" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <meta property="og:image" content={`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/opengraph-image.png`} />
         {/* Open Graph and Twitter tags handled via metadata above for Next.js 13+ */}
         {/* Structured Data for SEO (inlined) */}
         <script
